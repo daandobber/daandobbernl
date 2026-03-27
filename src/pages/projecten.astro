@@ -51,14 +51,16 @@ const meta: SiteMeta = {
 		{
 			projects.map((project) => (
 				<li class="project-item" data-tags={JSON.stringify(project.tags)}>
-					<div class="flex items-baseline gap-2">
+					<div class="flex items-center gap-2 flex-wrap">
 						<a href={project.url} class="cactus-link">
 							{project.title}
 						</a>
 						<span class="text-sm opacity-50">({project.year})</span>
 						<div class="flex gap-1">
 							{project.tags.map((tag) => (
-								<span class="text-xs opacity-50">#{tag}</span>
+								<span class="rounded-full bg-accent/10 px-2 py-0.5 text-xs text-accent">
+									{tag}
+								</span>
 							))}
 						</div>
 					</div>
