@@ -1,0 +1,49 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+import FilterSortBoardGameListWrapper from "@/components/FilterSortBoardGameListWrapper.svelte";
+import bggCollectionData from "@/data/bgg_collection.json";
+import type { BoardGame, SortOption, SiteMeta } from "@/types"; // Controleer SortOption type
+
+const games: BoardGame[] = bggCollectionData?.games ?? [];
+const searchFields: string[] = ["name", "categories", "mechanics"];
+
+const sortOptions: SortOption[] = [
+	// Zorg dat SortOption type klopt (waarschijnlijk sortKey: string)
+	{ id: "nameAZ", label: "Naam (A-Z)", order: "asc", sortKey: "name" },
+	{ id: "nameZA", label: "Naam (Z-A)", order: "desc", sortKey: "name" },
+	{ id: "yearNewOld", label: "Jaar (Nieuw-Oud)", order: "desc", sortKey: "yearpublished" },
+	{ id: "yearOldNew", label: "Jaar (Oud-Nieuw)", order: "asc", sortKey: "yearpublished" },
+	{ id: "ratingHighLow", label: "Rating (Hoog-Laag)", order: "desc", sortKey: "average_rating" },
+	{ id: "ratingLowHigh", label: "Rating (Laag-Hoog)", order: "asc", sortKey: "average_rating" },
+	{ id: "weightHighLow", label: "Gewicht (Hoog-Laag)", order: "desc", sortKey: "weight" },
+	{ id: "weightLowHigh", label: "Gewicht (Laag-Hoog)", order: "asc", sortKey: "weight" },
+	{ id: "myRatingHighLow", label: "Mijn rating (Hoog-Laag)", order: "desc", sortKey: "rating" },
+	{ id: "myRatingLowHigh", label: "Mijn rating (Laag-Hoog)", order: "asc", sortKey: "rating" },
+];
+
+const initialSortId: string = "nameAZ";
+
+// Verzamel unieke categorieën EN mechanismen
+const allCategories = [...new Set(games.flatMap((game) => game.categories || []))].sort();
+const allMechanics = [...new Set(games.flatMap((game) => game.mechanics || []))].sort(); // <-- NIEUW
+
+const meta: SiteMeta = {
+	title: "Mijn Bordspel Collectie",
+	description: "Een doorzoekbaar en filterbaar overzicht van mijn bordspel collectie.",
+};
+---
+
+<PageLayout meta={meta}>
+	<h1 class="title mb-6 text-2xl font-bold">Mijn Bordspel Collectie</h1>
+
+	<FilterSortBoardGameListWrapper
+		client:only="svelte"
+		items={games}
+		searchFields={searchFields}
+		sortOptions={sortOptions}
+		initialSortId={initialSortId}
+		availableCategories={allCategories}
+		availableMechanics={allMechanics}
+		initialShowExpansions={false}
+	/>
+</PageLayout>

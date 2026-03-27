@@ -1,0 +1,100 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+import StatsSection from "@/components/StatsSection.astro";
+import TimelineContainer from "@/components/TimelineContainer.astro";
+import Container from "@/components/Container.astro";
+
+const meta = {
+	title: "Curriculum Vitae",
+	description: "CV van Daan Dobber",
+};
+
+const profile = {
+	name: "Daan Dobber",
+	title: "Implementatieadviseur",
+	summary:
+		"",
+};
+
+const werkervaring = [
+	{
+		period: "2023 – heden",
+		title: "Implementatieadviseur · eLoo",
+		description: [
+			"Implementatie en optimalisatie van software binnen het onderwijs.",
+			"Begeleiden van projecttrajecten met oog voor werkbaarheid en adoptie.",
+			"Training en ondersteuning van eindgebruikers.",
+		],
+	},
+	{
+		period: "2020 – 2023",
+		title: "Event Manager · Hogeschool voor de Kunsten Utrecht",
+		description: [
+			"Productie en coördinatie van evenementen voor het Conservatorium en HKU Theater.",
+			"Digitalisering van evenementen tijdens coronacrisis.",
+			"Ontwikkeling van online platforms voor exposities.",
+		],
+	},
+	{
+		period: "2016 – 2020",
+		title: "Marketing & Communicatie · Marnix Academie",
+		description: [
+			"Verantwoordelijk voor interne en externe communicatie.",
+			"Contentcreatie, beheer digitale media en UNESCO-keurmerk.",
+			"Organisatie van evenementen, advisering managementteam.",
+		],
+	},
+	{
+		period: "2014 – 2016",
+		title: "Eigenaar · Bottle Rocket",
+		description: [
+			"Advies over social media, contentstrategie en SEO.",
+			"Workshops en freelance opdrachten voor o.a. Staatsbosbeheer, Bosbros, EMS Films.",
+		],
+	},
+];
+
+const opleiding = [
+	"Hogeschool van Amsterdam – Bachelor Culturele Maatschappelijke Vorming",
+	"Minor: Culturele Interventies",
+	"Stage: EMS Films (De Nieuwe Wildernis), Resto Van Harte",
+];
+
+const vaardigheden = [
+	"Projectmatig werken (Agile / Scrum)",
+	"Sterke communicatievaardigheden, zowel mondeling als schriftelijk",
+	"Aanpassingsvermogen en leergierigheid, bereid om nieuwe methodieken en concepten snel op te pakken",
+	"Zoho CRM, Desk, Projects",
+	"Microsoft Office Suite, Google G-Suite, serverbeheer",
+	"Python, HTML, JavaScript",
+	"Adobe Suite (Photoshop, InDesign, Premiere, Illustrator)",
+	"WordPress, Drupal, DNN, Kentico",
+	"Social media beheer, online advertenties en SEO; Coosto",
+];
+---
+
+<PageLayout meta={meta}>
+	<h1 class="title mb-6">Curriculum Vitae</h1>
+
+	<!-- Blok 1: Werkervaring -->
+	<TimelineContainer
+		title="Werkervaring"
+		items={werkervaring.map(({ period, title, description }) => ({
+			period,
+			title,
+			description: description.join(" "),
+		}))}
+	/>
+
+	<!-- Blok 2: Opleiding -->
+	<Container
+		title="Opleiding"
+		items={opleiding}
+	/>
+
+	<!-- Blok 3: Vaardigheden -->
+	<Container
+		title="Vaardigheden"
+		items={vaardigheden}
+	/>
+</PageLayout>

@@ -1,0 +1,19 @@
+---
+const {
+	title = "Blok",
+	items = [],
+	icon = "✦"
+} = Astro.props;
+---
+
+<section class="mb-6 rounded-md border-2 border-stone-800 p-4 dark:border-white">
+	<h2 class="mb-3 text-center text-xl font-bold tracking-wider uppercase">{title}</h2>
+	<ul class="list-none">
+		{items.map((item) => (
+			<li class="flex items-center border-b border-stone-700 py-1 last:border-0">
+				<span class="mr-2 text-lg">{icon}</span>
+				<span>{item}</span>
+			</li>
+		))}
+	</ul>
+</section>

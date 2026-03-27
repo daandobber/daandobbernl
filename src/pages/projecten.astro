@@ -1,0 +1,148 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+import type { SiteMeta } from "@/types";
+import projectsData from "@/data/projects.json";
+
+interface Project {
+	id: string;
+	title: string;
+	description: string;
+	url: string;
+	tags: string[];
+	year: number;
+	featured: boolean;
+}
+
+const projects: Project[] = projectsData.projects;
+const allTags = [...new Set(projects.flatMap((p) => p.tags))].sort();
+
+const meta: SiteMeta = {
+	title: "Projecten",
+	description: "Een overzicht van mijn projecten en experimenten.",
+};
+---
+
+<PageLayout meta={meta}>
+	<h1 class="title mb-6 text-2xl font-bold">Projecten</h1>
+	<p class="mb-8 text-gray-600 dark:text-gray-400">
+		Een verzameling van dingen die ik heb gemaakt. Klik op een titel om het project te openen, of
+		klik op de rij voor meer details.
+	</p>
+
+	<div class="mb-6 flex flex-wrap gap-2">
+		<button
+			class="filter-tag rounded-md border border-gray-300 px-3 py-1 text-sm transition hover:bg-accent hover:text-white dark:border-gray-700"
+			data-tag="all"
+		>
+			Alle
+		</button>
+		{
+			allTags.map((tag) => (
+				<button
+					class="filter-tag rounded-md border border-gray-300 px-3 py-1 text-sm transition hover:bg-accent hover:text-white dark:border-gray-700"
+					data-tag={tag}
+				>
+					{tag}
+				</button>
+			))
+		}
+	</div>
+
+	<div class="space-y-2">
+		{
+			projects.map((project) => (
+				<details
+					class="project-item group rounded-md border border-gray-300 transition hover:border-accent dark:border-gray-700"
+					data-tags={JSON.stringify(project.tags)}
+				>
+					<summary class="flex cursor-pointer items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-900">
+						<div class="flex flex-1 items-center gap-4">
+							<a
+								href={project.url}
+								class="text-lg font-semibold text-accent hover:underline"
+								onclick="event.stopPropagation()"
+							>
+								{project.title}
+							</a>
+							<span class="text-sm text-gray-500 dark:text-gray-500">{project.year}</span>
+						</div>
+						<div class="flex items-center gap-3">
+							<div class="flex flex-wrap gap-1">
+								{project.tags.map((tag) => (
+									<span class="rounded-full bg-accent/10 px-2 py-0.5 text-xs text-accent">
+										{tag}
+									</span>
+								))}
+							</div>
+							<svg
+								class="h-5 w-5 transition group-open:rotate-180"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M19 9l-7 7-7-7"
+								/>
+							</svg>
+						</div>
+					</summary>
+					<div class="border-t border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-900/50">
+						<p class="text-gray-700 dark:text-gray-300">{project.description}</p>
+						<a
+							href={project.url}
+							class="mt-2 inline-block text-accent hover:underline"
+							target="_blank"
+							rel="noopener"
+						>
+							→ Open project
+						</a>
+					</div>
+				</details>
+			))
+		}
+	</div>
+</PageLayout>
+
+<script>
+	const filterTags = document.querySelectorAll(".filter-tag");
+	const projectItems = document.querySelectorAll(".project-item");
+
+	filterTags.forEach((tag) => {
+		tag.addEventListener("click", () => {
+			const selectedTag = tag.getAttribute("data-tag");
+
+			// Update active state
+			filterTags.forEach((t) => t.classList.remove("bg-accent", "text-white"));
+			tag.classList.add("bg-accent", "text-white");
+
+			// Filter projects
+			projectItems.forEach((item) => {
+				const tags = JSON.parse(item.getAttribute("data-tags") || "[]");
+				if (selectedTag === "all" || tags.includes(selectedTag)) {
+					(item as HTMLElement).style.display = "block";
+				} else {
+					(item as HTMLElement).style.display = "none";
+				}
+			});
+		});
+	});
+
+	// Set "Alle" as active by default
+	const allButton = document.querySelector('.filter-tag[data-tag="all"]');
+	if (allButton) {
+		allButton.classList.add("bg-accent", "text-white");
+	}
+</script>
+
+<style>
+	details summary::-webkit-details-marker {
+		display: none;
+	}
+
+	details[open] summary {
+		border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	}
+</style>

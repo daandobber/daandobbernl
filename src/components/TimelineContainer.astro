@@ -1,0 +1,23 @@
+---
+const {
+	title = "Blok",
+	items = [],
+} = Astro.props;
+---
+
+<section class="mb-6 rounded-md border-2 border-stone-800 p-4 dark:border-white">
+	<h2 class="mb-3 text-center text-xl font-bold tracking-wider uppercase">{title}</h2>
+	<table class="w-full border-collapse">
+		<tbody>
+			{items.map((item) => (
+				<tr class="border-b border-stone-700 last:border-0">
+					<td class="px-2 py-1 align-top text-sm">{item.period}</td>
+					<td class="px-2 py-1 align-top">
+						{item.title && <div class="font-semibold">{item.title}</div>}
+						{item.description && <div class="text-sm">{item.description}</div>}
+					</td>
+				</tr>
+			))}
+		</tbody>
+	</table>
+</section>

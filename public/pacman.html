@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eloo Observator Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: none; /* Voorkom scrollen op touch devices */
+        }
+        canvas {
+            background-color: #000;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .touch-button {
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .touch-button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-2xl text-center mb-4">
+        <h1 class="text-3xl md:text-4xl font-bold text-blue-800">Eloo Observator Game</h1>
+        <p class="text-gray-600 mt-1">Observeer de les! Verzamel de Eloo-stippen en vermijd slechte lesmethodes.</p>
+    </div>
+
+    <div class="relative w-full max-w-2xl mx-auto">
+        <canvas id="gameCanvas"></canvas>
+        <div id="startScreen" class="absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center rounded-lg">
+            <h2 class="text-4xl font-bold text-white mb-4">Klaar om te observeren?</h2>
+            <button id="startButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-xl shadow-lg">Start Spel</button>
+        </div>
+        <div id="endScreen" class="absolute inset-0 bg-black bg-opacity-70 flex-col items-center justify-center rounded-lg hidden">
+            <h2 id="endMessage" class="text-4xl font-bold text-white mb-4"></h2>
+            <button id="restartButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-xl shadow-lg">Opnieuw Spelen</button>
+        </div>
+    </div>
+
+    <div class="w-full max-w-2xl flex justify-between items-center mt-4 text-lg">
+        <div class="font-semibold">Score: <span id="score" class="text-blue-700 font-bold">0</span></div>
+        <div class="font-semibold">Levens: <span id="lives" class="text-red-500 font-bold">3</span></div>
+    </div>
+
+    <div class="w-full max-w-md mt-4 text-center">
+        <h3 class="font-bold text-xl mb-2">Slechte Lesmethodes (Spookjes):</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+            <div class="p-2 bg-red-200 rounded-lg shadow">Frontaal doceren</div>
+            <div class="p-2 bg-orange-200 rounded-lg shadow">Passief luisteren</div>
+            <div class="p-2 bg-yellow-200 rounded-lg shadow">Geen interactie</div>
+            <div class="p-2 bg-purple-200 rounded-lg shadow">Monotone stem</div>
+        </div>
+    </div>
+    
+    <!-- Touch Controls for Mobile -->
+    <div id="touchControls" class="grid grid-cols-3 gap-2 w-48 mt-4 md:hidden">
+        <div></div>
+        <button class="touch-button bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg" data-direction="up">▲</button>
+        <div></div>
+        <button class="touch-button bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg" data-direction="left">◄</button>
+        <button class="touch-button bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg" data-direction="down">▼</button>
+        <button class="touch-button bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg" data-direction="right">►</button>
+    </div>
+
+
+<script>
+    // Wacht tot het DOM volledig geladen is
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Canvas en Context Setup ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // --- UI Elementen ---
+        const scoreEl = document.getElementById('score');
+        const livesEl = document.getElementById('lives');
+        const startScreen = document.getElementById('startScreen');
+        const endScreen = document.getElementById('endScreen');
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
+        const endMessage = document.getElementById('endMessage');
+        const touchControls = document.getElementById('touchControls');
+
+        // --- Spel Variabelen ---
+        let tileSize = 20;
+        let map = [];
+        const initialMap = [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+            [1, 3, 1, 1, 2, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 2, 1, 1, 3, 1],
+            [1, 2, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1],
+            [1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1],
+            [1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1],
+            [1, 1, 1, 2, 1, 1, 2, 1, 0, 1, 1, 1, 0, 1, 2, 1, 1, 2, 1, 1, 1],
+            [0, 2, 2, 2, 2, 2, 2, 1, 0, 1, 0, 1, 0, 1, 2, 2, 2, 2, 2, 2, 0],
+            [1, 1, 1, 2, 1, 1, 2, 1, 0, 1, 1, 1, 0, 1, 2, 1, 1, 2, 1, 1, 1],
+            [1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1],
+            [1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1],
+            [1, 2, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1],
+            [1, 3, 1, 1, 2, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 2, 1, 1, 3, 1],
+            [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ];
+
+        let player, ghosts, score, lives, dotCount, frightenedMode, frightenedTimer;
+        let animationFrameId;
+        let isPlayerDying = false;
+
+        // --- Geluid Setup (Tone.js) ---
+        let soundsReady = false;
+        let dotSynth, deathSynth, eatGhostSynth, powerupSynth;
+        let wakaToggle = false;
+        let normalSiren, frightenedSiren;
+
+        function setupSounds() {
+            // FIX: Use PolySynth for sounds that can be rapidly re-triggered
+            dotSynth = new Tone.PolySynth(Tone.Synth, {
+                oscillator: { type: 'square' },
+                volume: -12,
+                envelope: { attack: 0.005, decay: 0.05, sustain: 0, release: 0.1 }
+            }).toDestination();
+
+            deathSynth = new Tone.Synth({ oscillator: { type: 'sawtooth' }, volume: -5, envelope: { attack: 0.01, decay: 0.5, sustain: 0.1, release: 0.5 } }).toDestination();
+
+            eatGhostSynth = new Tone.PolySynth(Tone.Synth, {
+                 oscillator: { type: 'triangle' },
+                 volume: -5,
+                 envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.2 }
+            }).toDestination();
+
+            powerupSynth = new Tone.Synth({ oscillator: { type: 'triangle' }, volume: -5, envelope: { attack: 0.01, decay: 0.5, sustain: 0, release: 0.5 } }).toDestination();
+
+            const sirenSynth = new Tone.Synth({ oscillator: { type: 'sawtooth' }, volume: -20, envelope: { attack: 0.1, decay: 0.1, sustain: 0.5, release: 0.2 } }).toDestination();
+            normalSiren = new Tone.Loop(time => { sirenSynth.triggerAttackRelease('A2', '16n', time); }, '8n');
+            frightenedSiren = new Tone.Loop(time => { sirenSynth.triggerAttackRelease('A1', '16n', time); }, '4n');
+            soundsReady = true;
+        }
+
+        // --- Afbeeldingen ---
+        const powerUpImage = new Image();
+        powerUpImage.src = 'https://i.ibb.co/6rW8z6R/eloo.png';
+        let imageLoaded = false;
+        powerUpImage.onload = () => { imageLoaded = true; };
+
+        // --- Klassen ---
+        class Character {
+            constructor(x, y, speed, color) {
+                this.x = x; this.y = y; this.speed = speed; this.color = color;
+                this.direction = { x: 0, y: 0 }; this.nextDirection = { x: 0, y: 0 };
+            }
+            draw(ctx) {
+                ctx.fillStyle = this.color; ctx.beginPath();
+                ctx.arc(this.x * tileSize + tileSize / 2, this.y * tileSize + tileSize / 2, tileSize / 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            collidesWithWall(x, y) {
+                const gridX = Math.floor(x); const gridY = Math.floor(y);
+                if (gridX < 0 || gridX >= map[0].length || gridY < 0 || gridY >= map.length) return true;
+                return map[gridY][gridX] === 1;
+            }
+        }
+
+        class Player extends Character {
+            constructor(x, y, speed) { super(x, y, speed, '#4338ca'); }
+            draw(ctx) {
+                ctx.fillStyle = this.color; ctx.beginPath();
+                ctx.arc(this.x * tileSize + tileSize / 2, this.y * tileSize + tileSize / 2, tileSize / 2.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = 'white'; ctx.beginPath();
+                ctx.arc(this.x * tileSize + tileSize / 2 + this.direction.x * 2, this.y * tileSize + tileSize / 2 + this.direction.y * 2, tileSize / 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            update() {
+                const onGridCenter = Math.abs(this.x - Math.round(this.x)) < this.speed && Math.abs(this.y - Math.round(this.y)) < this.speed;
+                if (onGridCenter) {
+                    this.x = Math.round(this.x); this.y = Math.round(this.y);
+                    if ((this.nextDirection.x !== 0 || this.nextDirection.y !== 0) && !this.collidesWithWall(this.x + this.nextDirection.x, this.y + this.nextDirection.y)) {
+                        this.direction = { ...this.nextDirection }; this.nextDirection = { x: 0, y: 0 };
+                    }
+                    if (this.collidesWithWall(this.x + this.direction.x, this.y + this.direction.y)) {
+                        this.direction = { x: 0, y: 0 };
+                    }
+                }
+                this.x += this.direction.x * this.speed; this.y += this.direction.y * this.speed;
+                this.x = Math.round(this.x * 1000) / 1000; this.y = Math.round(this.y * 1000) / 1000;
+                if (this.x < 0) { this.x = map[0].length - 1; }
+                if (this.x >= map[0].length) { this.x = 0; }
+            }
+        }
+
+        class Ghost extends Character {
+            constructor(x, y, speed, color, name) {
+                super(x, y, speed, color); this.name = name; this.originalColor = color; this.isFrightened = false;
+            }
+            draw(ctx) {
+                const radius = tileSize / 2.5; const centerX = this.x * tileSize + tileSize / 2; const centerY = this.y * tileSize + tileSize / 2;
+                ctx.fillStyle = this.isFrightened ? '#0000FF' : this.color; ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, Math.PI, 0); ctx.lineTo(centerX + radius, centerY + radius); ctx.lineTo(centerX + radius * 0.5, centerY + radius * 0.7);
+                ctx.lineTo(centerX, centerY + radius); ctx.lineTo(centerX - radius * 0.5, centerY + radius * 0.7); ctx.lineTo(centerX - radius, centerY + radius);
+                ctx.closePath(); ctx.fill();
+                ctx.fillStyle = 'white'; ctx.beginPath();
+                ctx.arc(centerX - radius / 2.5, centerY - radius / 3, radius / 3, 0, Math.PI * 2); ctx.arc(centerX + radius / 2.5, centerY - radius / 3, radius / 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = 'black'; ctx.beginPath();
+                ctx.arc(centerX - radius / 2.5 + this.direction.x * 2, centerY - radius / 3 + this.direction.y * 2, radius / 6, 0, Math.PI * 2);
+                ctx.arc(centerX + radius / 2.5 + this.direction.x * 2, centerY - radius / 3 + this.direction.y * 2, radius / 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            update(player) {
+                const onGridCenter = Math.abs(this.x - Math.round(this.x)) < this.speed && Math.abs(this.y - Math.round(this.y)) < this.speed;
+                if (onGridCenter) {
+                    this.x = Math.round(this.x); this.y = Math.round(this.y);
+                    if (this.isAtIntersection() || this.collidesWithWall(this.x + this.direction.x, this.y + this.direction.y)) {
+                        this.chooseDirection(player);
+                    }
+                }
+                this.x += this.direction.x * this.speed; this.y += this.direction.y * this.speed;
+                if (this.x < 0) { this.x = map[0].length - 1; }
+                if (this.x >= map[0].length) { this.x = 0; }
+            }
+            isAtIntersection() {
+                let openPaths = 0;
+                if (!this.collidesWithWall(this.x, this.y - 1)) openPaths++; if (!this.collidesWithWall(this.x, this.y + 1)) openPaths++;
+                if (!this.collidesWithWall(this.x - 1, this.y)) openPaths++; if (!this.collidesWithWall(this.x + 1, this.y)) openPaths++;
+                return openPaths > 2;
+            }
+            chooseDirection(player) {
+                const directions = [{x:0, y:-1}, {x:0, y:1}, {x:-1, y:0}, {x:1, y:0}];
+                let possibleDirections = directions.filter(dir => !this.collidesWithWall(this.x + dir.x, this.y + dir.y));
+                if (possibleDirections.length > 1 && (this.direction.x !== 0 || this.direction.y !== 0)) {
+                    possibleDirections = possibleDirections.filter(dir => dir.x !== -this.direction.x || dir.y !== -this.direction.y);
+                }
+                if (possibleDirections.length === 0) { this.direction.x *= -1; this.direction.y *= -1; return; }
+                let bestDir = possibleDirections[0];
+                if (this.isFrightened) {
+                    let maxDist = -1;
+                    for (const dir of possibleDirections) {
+                        const dist = Math.hypot(this.x + dir.x - player.x, this.y + dir.y - player.y);
+                        if (dist > maxDist) { maxDist = dist; bestDir = dir; }
+                    }
+                } else {
+                    let minDist = Infinity;
+                    for (const dir of possibleDirections) {
+                        const dist = Math.hypot(this.x + dir.x - player.x, this.y + dir.y - player.y);
+                        if (dist < minDist) { minDist = dist; bestDir = dir; }
+                    }
+                }
+                this.direction = bestDir;
+            }
+        }
+
+        // --- Spel Functies ---
+        function init() {
+            map = initialMap.map(row => [...row]);
+            score = 0; lives = 3; dotCount = 0; frightenedMode = false; frightenedTimer = 0;
+            isPlayerDying = false;
+            scoreEl.textContent = score; livesEl.textContent = lives;
+            endScreen.classList.add('hidden'); startScreen.classList.remove('hidden');
+            const containerWidth = canvas.parentElement.clientWidth;
+            tileSize = Math.floor(containerWidth / map[0].length);
+            canvas.width = map[0].length * tileSize; canvas.height = map.length * tileSize;
+            player = new Player(10, 11, 0.125); 
+            ghosts = [
+                new Ghost(9, 6, 0.05, '#ef4444', 'Frontaal doceren'), new Ghost(11, 6, 0.05, '#f97316', 'Passief luisteren'),
+                new Ghost(9, 8, 0.05, '#eab308', 'Geen interactie'), new Ghost(11, 8, 0.05, '#a855f7', 'Monotone stem')
+            ];
+            map.forEach(row => row.forEach(tile => { if (tile === 2) dotCount++; }));
+            if (soundsReady) {
+                Tone.Transport.stop();
+                Tone.Transport.cancel();
+            }
+            draw();
+        }
+
+        function startGame() {
+            startScreen.classList.add('hidden');
+            if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+            if (soundsReady) {
+                Tone.Transport.start();
+                if (normalSiren.state !== 'started') normalSiren.start();
+            }
+            gameLoop();
+        }
+
+        function resetPlayerAndGhosts() {
+            player.x = 10; player.y = 11; player.direction = {x: 0, y: 0}; player.nextDirection = {x: 0, y: 0};
+            ghosts[0].x = 9; ghosts[0].y = 6; ghosts[1].x = 11; ghosts[1].y = 6;
+            ghosts[2].x = 9; ghosts[2].y = 8; ghosts[3].x = 11; ghosts[3].y = 8;
+            ghosts.forEach(g => { g.isFrightened = false; g.direction = {x:0, y:0}; });
+            frightenedMode = false; frightenedTimer = 0;
+        }
+
+        function handlePlayerDeath() {
+            if (isPlayerDying) return;
+            isPlayerDying = true;
+
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+            lives--;
+            livesEl.textContent = lives;
+            if (soundsReady) {
+                Tone.Transport.stop();
+                deathSynth.triggerAttackRelease('C4', '0.5');
+                deathSynth.frequency.rampTo('C2', 0.5);
+            }
+            if (lives <= 0) {
+                setTimeout(() => gameOver(false), 1500);
+            } else {
+                setTimeout(() => {
+                    resetPlayerAndGhosts();
+                    if (soundsReady) {
+                        Tone.Transport.start();
+                        if (normalSiren.state !== 'started') normalSiren.start();
+                        if (frightenedSiren.state === 'started') frightenedSiren.stop();
+                    }
+                    isPlayerDying = false;
+                    gameLoop();
+                }, 1500);
+            }
+        }
+        
+        function gameOver(isWin) {
+            cancelAnimationFrame(animationFrameId); animationFrameId = null;
+            endScreen.classList.remove('hidden');
+            endMessage.textContent = isWin ? 'Geweldig geobserveerd!' : 'Game Over';
+            if (soundsReady) { Tone.Transport.stop(); }
+        }
+
+        function gameLoop() {
+            if (isPlayerDying) return;
+            update();
+            draw();
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function update() {
+            player.update();
+            ghosts.forEach(ghost => ghost.update(player));
+            if (frightenedMode) {
+                frightenedTimer--;
+                if (frightenedTimer <= 0) {
+                    frightenedMode = false;
+                    ghosts.forEach(g => g.isFrightened = false);
+                    if (soundsReady) {
+                        if (frightenedSiren.state === 'started') frightenedSiren.stop();
+                        if (normalSiren.state !== 'started') normalSiren.start();
+                    }
+                }
+            }
+            checkCollisions();
+            if (dotCount <= 0) { gameOver(true); }
+        }
+
+        function checkCollisions() {
+            if (isPlayerDying) return;
+
+            const playerGridX = Math.round(player.x); const playerGridY = Math.round(player.y);
+            if (map[playerGridY][playerGridX] === 2) {
+                map[playerGridY][playerGridX] = 0; score += 10; dotCount--; scoreEl.textContent = score;
+                if (soundsReady) {
+                    dotSynth.triggerAttackRelease(wakaToggle ? 'F#4' : 'G4', '16n');
+                    wakaToggle = !wakaToggle;
+                }
+            } else if (map[playerGridY][playerGridX] === 3) {
+                map[playerGridY][playerGridX] = 0; score += 50; scoreEl.textContent = score;
+                frightenedMode = true; frightenedTimer = 400;
+                ghosts.forEach(g => g.isFrightened = true);
+                if (soundsReady) {
+                    powerupSynth.triggerAttackRelease('C5', '0.4');
+                    if (normalSiren.state === 'started') normalSiren.stop();
+                    if (frightenedSiren.state !== 'started') frightenedSiren.start();
+                }
+            }
+            ghosts.forEach(ghost => {
+                const ghostGridX = Math.round(ghost.x); const ghostGridY = Math.round(ghost.y);
+                if (playerGridX === ghostGridX && playerGridY === ghostGridY) {
+                    if (ghost.isFrightened) {
+                        score += 200; scoreEl.textContent = score;
+                        ghost.x = 10; ghost.y = 7; ghost.isFrightened = false;
+                        if (soundsReady) { eatGhostSynth.triggerAttackRelease('G5', '8n'); }
+                    } else {
+                        handlePlayerDeath();
+                    }
+                }
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = 'black'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            for (let y = 0; y < map.length; y++) {
+                for (let x = 0; x < map[y].length; x++) {
+                    if (map[y][x] === 1) {
+                        ctx.fillStyle = '#1e3a8a'; ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                    } else if (map[y][x] === 2) {
+                        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2, tileSize / 8, 0, Math.PI * 2); ctx.fill();
+                    } else if (map[y][x] === 3) {
+                        if (imageLoaded) { ctx.drawImage(powerUpImage, x * tileSize, y * tileSize, tileSize, tileSize); } 
+                        else { ctx.fillStyle = '#60a5fa'; ctx.beginPath(); ctx.arc(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2, tileSize / 3, 0, Math.PI * 2); ctx.fill(); }
+                    }
+                }
+            }
+            player.draw(ctx); ghosts.forEach(ghost => ghost.draw(ctx));
+        }
+
+        // --- Event Listeners ---
+        window.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'ArrowUp': case 'w': player.nextDirection = { x: 0, y: -1 }; break;
+                case 'ArrowDown': case 's': player.nextDirection = { x: 0, y: 1 }; break;
+                case 'ArrowLeft': case 'a': player.nextDirection = { x: -1, y: 0 }; break;
+                case 'ArrowRight': case 'd': player.nextDirection = { x: 1, y: 0 }; break;
+            }
+        });
+        touchControls.addEventListener('click', (e) => {
+            const button = e.target.closest('.touch-button'); if (!button) return;
+            const direction = button.dataset.direction;
+            switch (direction) {
+                case 'up': player.nextDirection = { x: 0, y: -1 }; break; case 'down': player.nextDirection = { x: 0, y: 1 }; break;
+                case 'left': player.nextDirection = { x: -1, y: 0 }; break; case 'right': player.nextDirection = { x: 1, y: 0 }; break;
+            }
+        });
+        startButton.addEventListener('click', async () => {
+            if (!soundsReady) { await Tone.start(); setupSounds(); }
+            startGame();
+        });
+        restartButton.addEventListener('click', () => { init(); startGame(); });
+        window.addEventListener('resize', init);
+        init();
+    });
+</script>
+
+</body>
+</html>

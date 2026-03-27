@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build
+.astro/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# Scripts data (optional - comment out if you want to commit)
+# scripts/src/data/
+
+# Duplicate dist folder (cleanup)
+dist/dist/

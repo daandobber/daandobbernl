@@ -1,0 +1,94 @@
+{
+  "projects": [
+    {
+      "id": "resonaut",
+      "title": "Resonaut",
+      "description": "Een interactieve muzikale ervaring waarbij orbs geluid produceren wanneer ze bewegen en botsen. Je kunt verschillende synthesizers en samples gebruiken om unieke soundscapes te creëren.",
+      "url": "/resonaut/",
+      "tags": ["muziek", "javascript", "html", "audio", "interactief"],
+      "year": 2024,
+      "featured": true
+    },
+    {
+      "id": "carcassonne-quiz",
+      "title": "Carcassonne Tegel Quiz",
+      "description": "Oefen het herkennen van Carcassonne tegels en verbeter je spel. Een interactieve quiz om bekend te raken met alle tegels uit het basisspel.",
+      "url": "/carcassonnequiz/",
+      "tags": ["spel", "javascript", "html", "carcassonne"],
+      "year": 2025,
+      "featured": true
+    },
+    {
+      "id": "bordspellen",
+      "title": "Mijn Bordspel Collectie",
+      "description": "Een doorzoekbaar en filterbaar overzicht van mijn bordspel collectie met data van BoardGameGeek.",
+      "url": "/bordspellen/",
+      "tags": ["spel", "data", "collectie"],
+      "year": 2024,
+      "featured": true
+    },
+    {
+      "id": "cd-collectie",
+      "title": "CD Collectie",
+      "description": "Overzicht van mijn CD collectie, gesynchroniseerd met Discogs.",
+      "url": "/cd-collectie/",
+      "tags": ["muziek", "data", "collectie"],
+      "year": 2024,
+      "featured": false
+    },
+    {
+      "id": "steam",
+      "title": "Steam Bibliotheek",
+      "description": "Een overzicht van mijn Steam spelbibliotheek met statistieken en filters.",
+      "url": "/steam/",
+      "tags": ["spel", "data", "gaming"],
+      "year": 2024,
+      "featured": false
+    },
+    {
+      "id": "universum",
+      "title": "Universum",
+      "description": "Een generatieve muzikale visualisatie waarin sterren geluid maken.",
+      "url": "/universum/",
+      "tags": ["muziek", "javascript", "html", "generatief", "audio"],
+      "year": 2023,
+      "featured": false
+    },
+    {
+      "id": "asymseq",
+      "title": "AsymSeq",
+      "description": "Een asymmetrische sequencer voor het maken van polymetrische patronen.",
+      "url": "/asymseq/",
+      "tags": ["muziek", "javascript", "html", "sequencer"],
+      "year": 2023,
+      "featured": false
+    },
+    {
+      "id": "grooveboix",
+      "title": "GrooveBoix",
+      "description": "Een simpele drum machine met verschillende patterns en sounds.",
+      "url": "/grooveboix.html",
+      "tags": ["muziek", "javascript", "html", "drums"],
+      "year": 2023,
+      "featured": false
+    },
+    {
+      "id": "droomland",
+      "title": "Droomland",
+      "description": "Een interactieve visuele ervaring.",
+      "url": "/droomland.html",
+      "tags": ["html", "javascript", "visueel"],
+      "year": 2022,
+      "featured": false
+    },
+    {
+      "id": "landschap37",
+      "title": "Landschap 37",
+      "description": "Generatieve landschappen met procedurele generatie.",
+      "url": "/landschap37.html",
+      "tags": ["html", "javascript", "generatief", "visueel"],
+      "year": 2022,
+      "featured": false
+    }
+  ]
+}
