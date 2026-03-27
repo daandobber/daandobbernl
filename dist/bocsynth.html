@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tonnetz Engine - VCR Edition</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --vhs-red: #ff2828;
+            --vhs-blue: #28a0ff;
+            --vhs-orange: #ff9d00;
+            --vhs-green: #2ecc71;
+            --hex-base: #33332d;
+            --bg-dark: #050504;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #d4c5a1;
+            font-family: "Courier New", Courier, monospace;
+            overflow: hidden;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Scherm filters (CRT/Grain) - Alleen op de monitor-sectie */
+        .screen-container {
+            position: relative;
+            flex-grow: 1;
+            overflow: hidden;
+            background: #0d0d0c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 10px solid #1a1a17;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+        }
+
+        .crt-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
+            background-size: 100% 4px;
+            z-index: 5;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .tape-grain {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Grain_Noise.jpg');
+            opacity: 0.08;
+            z-index: 6;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+
+        .vhs-glitch {
+            position: relative;
+            display: inline-block;
+            text-shadow: 2px 0 0 var(--vhs-red), -2px 0 0 var(--vhs-blue);
+            animation: jitter 4s infinite;
+        }
+
+        @keyframes jitter {
+            0%, 48%, 52%, 100% { transform: translateX(0); }
+            50% { transform: translateX(1px) skewX(1deg); }
+            51% { transform: translateX(-1px); }
+        }
+
+        /* Hardware Elementen */
+        header {
+            position: relative;
+            z-index: 10;
+            background: #1a1a17;
+            border-bottom: 4px solid #000;
+            padding: 1rem 1.25rem;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .fader-panel {
+            position: relative;
+            z-index: 10;
+            background: #22221e;
+            border-top: 10px solid #111;
+            height: 200px;
+            padding: 20px 40px;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+            box-shadow: 0 -20px 60px rgba(0,0,0,1);
+        }
+
+        .fader-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid #2a2a24;
+        }
+        .fader-group:last-child { border-right: none; }
+
+        .fader-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            color: #7a7a6f;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            background: #000;
+            height: 6px;
+            width: 80%;
+            outline: none;
+            border-radius: 4px;
+            border: 1px solid #333;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 40px;
+            width: 24px;
+            background: #3a3a34;
+            border: 2px solid #555;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            background-image: linear-gradient(to bottom, #2a2a24, #4a4a40 50%, #2a2a24);
+            border-radius: 3px;
+            position: relative;
+        }
+
+        input[type=range]::-webkit-slider-thumb:before {
+            content: "";
+            position: absolute;
+            top: 50%; left: 0; width: 100%; height: 2px;
+            background: var(--vhs-orange);
+            transform: translateY(-50%);
+            opacity: 0.6;
+        }
+
+        /* Fysieke Play Knop */
+        .physical-btn {
+            width: 60px;
+            height: 45px;
+            background: #33332d;
+            border: 3px solid #444;
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 
+                inset 1px 1px 2px rgba(255,255,255,0.1),
+                inset -1px -1px 4px rgba(0,0,0,0.6),
+                0 6px 0 #1a1a17,
+                0 8px 15px rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s ease;
+        }
+
+        .physical-btn:active {
+            transform: translateY(4px);
+            box-shadow: 
+                inset 1px 1px 2px rgba(255,255,255,0.1),
+                inset -1px -1px 4px rgba(0,0,0,0.6),
+                0 2px 0 #1a1a17,
+                0 4px 8px rgba(0,0,0,0.8);
+        }
+
+        .physical-btn.active {
+            background: #2a2a24;
+            border-color: #555;
+            box-shadow: 
+                inset 2px 2px 5px rgba(0,0,0,0.8),
+                0 2px 0 #111;
+            transform: translateY(4px);
+        }
+
+        .play-icon {
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 15px solid #666;
+            margin-left: 5px;
+            transition: border-left-color 0.2s;
+        }
+
+        .physical-btn.active .play-icon {
+            border-left-color: var(--vhs-green);
+            filter: drop-shadow(0 0 5px var(--vhs-green));
+        }
+
+        /* SVG Grid Elements */
+        .hex {
+            fill: #2a2a24;
+            stroke: #1a1a17;
+            stroke-width: 2;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        
+        .hex:hover {
+            fill: #3a3a30;
+        }
+
+        .hex.active { 
+            fill: #fff !important; 
+            filter: drop-shadow(0 0 15px #fff);
+        }
+        
+        .chord-trigger {
+            cursor: pointer;
+            stroke-width: 1.5;
+            transition: all 0.1s;
+        }
+        
+        .major { 
+            fill: #ff8c00; 
+            stroke: rgba(255, 140, 0, 0.4);
+            filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.4));
+        }
+        
+        .minor { 
+            fill: #0084ff; 
+            stroke: rgba(0, 132, 255, 0.4);
+            filter: drop-shadow(0 0 8px rgba(0, 132, 255, 0.4));
+        }
+        
+        .chord-trigger.active { 
+            fill: #fff !important;
+            filter: drop-shadow(0 0 40px #fff) !important;
+            stroke: #fff;
+        }
+
+        .hex-text {
+            pointer-events: none;
+            font-size: 10px;
+            fill: #fff;
+            font-weight: 900;
+            text-shadow: 1px 1px 2px #000;
+            opacity: 0.4;
+        }
+
+        #start-overlay {
+            background-color: #000;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Start Overlay -->
+    <div id="start-overlay" class="fixed inset-0 flex flex-col items-center justify-center space-y-10">
+        <button id="start-btn" class="px-20 py-10 border-8 border-[#222] text-[#d4c5a1] hover:border-[#ff9d00] hover:text-[#fff] transition-all text-4xl tracking-[0.6em] font-black bg-[#111]">
+            POWER ON
+        </button>
+    </div>
+
+    <!-- Top Bar (Hardware) -->
+    <header>
+        <div id="clock-display" class="vhs-glitch text-2xl tabular-nums font-bold text-[#ff9d00]">00:00:00</div>
+    </header>
+
+    <!-- Monitor Sectie -->
+    <div class="screen-container">
+        <div class="crt-overlay"></div>
+        <div class="tape-grain"></div>
+        
+        <svg id="tonnetz-svg" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 1000 750">
+            <g id="chord-layer"></g>
+            <g id="note-layer"></g>
+        </svg>
+    </div>
+
+    <!-- Control Center (Hardware) -->
+    <footer class="fader-panel">
+        <div class="fader-group">
+            <span class="fader-label">Saturation / Drive</span>
+            <input type="range" id="grit" min="0" max="1" step="0.01" value="0.2">
+        </div>
+
+        <div class="fader-group">
+            <span class="fader-label">Wow / Flutter</span>
+            <input type="range" id="vibrato-depth" min="0" max="1" step="0.01" value="0.5">
+        </div>
+
+        <div class="fader-group">
+            <span class="fader-label">Tone / Filter</span>
+            <input type="range" id="cutoff" min="40" max="2200" step="1" value="600">
+        </div>
+
+        <div class="fader-group">
+            <span class="fader-label">Space / Echo</span>
+            <input type="range" id="delay-wet" min="0" max="1" step="0.01" value="0.3">
+        </div>
+
+        <div class="fader-group">
+            <span class="fader-label">Tape Hiss</span>
+            <input type="range" id="noise-vol" min="0" max="1" step="0.01" value="0.1">
+        </div>
+
+        <!-- Sequencer Play Knop -->
+        <div class="fader-group">
+            <span class="fader-label">Sequence Play</span>
+            <button id="gen-toggle" class="physical-btn">
+                <div class="play-icon"></div>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        const svg = document.getElementById('tonnetz-svg');
+        const noteLayer = document.getElementById('note-layer');
+        const chordLayer = document.getElementById('chord-layer');
+        const startBtn = document.getElementById('start-btn');
+        const genToggle = document.getElementById('gen-toggle');
+        const clockDisplay = document.getElementById('clock-display');
+        const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        
+        let synth, filter, reverb, vibrato, noiseGain, distortion, delay, isStarted = false;
+        let isMouseDown = false;
+        let lastId = null;
+        let centers = [];
+        let chordTriggers = [];
+        
+        // Manual playing state
+        let currentManualNotes = [];
+
+        // Sequencer State
+        let isGenerative = false;
+        let genLoop = null;
+        let startTime = 0;
+
+        window.onmousedown = () => { isMouseDown = true; };
+        window.onmouseup = () => { 
+            isMouseDown = false; 
+            stopManualPlay(); 
+            lastId = null; 
+        };
+
+        function initAudio() {
+            synth = new Tone.PolySynth(Tone.Synth, {
+                oscillator: { type: "fatsawtooth", count: 3, spread: 35 },
+                envelope: { attack: 2.2, decay: 3, sustain: 0.8, release: 4 }
+            });
+
+            const initialGrit = parseFloat(document.getElementById('grit').value) * 0.08;
+            distortion = new Tone.Distortion(initialGrit).toDestination(); 
+            
+            filter = new Tone.Filter(600, "lowpass", -24).connect(distortion);
+            reverb = new Tone.Reverb({ decay: 15, wet: 0.55 }).connect(filter);
+            delay = new Tone.PingPongDelay({ delayTime: "4n", feedback: 0.45, wet: 0.35 }).connect(reverb);
+            vibrato = new Tone.Vibrato({ frequency: 3.5, depth: 0.25 }).connect(delay);
+            
+            new Tone.LFO(0.1, 350, 750).start().connect(filter.frequency);
+            new Tone.LFO(0.06, -0.2, 0.2).start().connect(vibrato.depth);
+
+            const noise = new Tone.Noise("pink").start();
+            noiseGain = new Tone.Gain(0.12).connect(vibrato);
+            noise.connect(noiseGain);
+
+            synth.connect(vibrato);
+
+            Tone.start();
+            isStarted = true;
+            document.getElementById('start-overlay').style.display = 'none';
+        }
+
+        const hexSize = 56; 
+        const width = Math.sqrt(3) * hexSize;
+        const height = 2 * hexSize;
+        const rows = 6; 
+        const cols = 9;
+
+        function createGrid() {
+            centers = [];
+            for (let r = 0; r < rows; r++) {
+                centers[r] = [];
+                for (let c = 0; c < cols; c++) {
+                    const x = c * (width * 1.08) + (r % 2) * (width * 0.54) + 80;
+                    const y = r * (height * 0.82) + 100;
+                    
+                    const semitones = (r * 4) + (c * 7);
+                    const octave = Math.floor(semitones / 12); 
+                    const noteName = notes[((semitones % 12) + 12) % 12] + octave;
+                    
+                    centers[r][c] = { x, y, note: noteName, index: semitones, id: `n-${r}-${c}` };
+                }
+            }
+
+            for (let r = 0; r < rows - 1; r++) {
+                for (let c = 0; c < cols - 1; c++) {
+                    const p1 = centers[r][c];
+                    const p2 = centers[r][c+1];
+                    const p3 = centers[r+1][(r % 2 === 0) ? c : c+1];
+                    createTriangle(p1, p2, p3, true, `maj-${r}-${c}`);
+
+                    const d1 = centers[r+1][c];
+                    const d2 = centers[r+1][c+1];
+                    const d3 = centers[r][(r % 2 === 0) ? c+1 : c];
+                    createTriangle(d1, d2, d3, false, `min-${r}-${c}`);
+                }
+            }
+
+            centers.flat().forEach(p => {
+                const hex = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+                hex.setAttribute("points", hexPoints(p.x, p.y, hexSize * 0.88));
+                hex.setAttribute("class", "hex");
+                hex.id = p.id;
+                
+                const trigger = () => {
+                    if (lastId === p.id) return;
+                    lastId = p.id;
+                    
+                    // Release only previous manual notes to allow polyphony with sequencer
+                    stopManualPlay();
+                    
+                    document.getElementById(p.id).classList.add('active');
+                    if(isStarted) {
+                        currentManualNotes = [p.note];
+                        synth.triggerAttack(currentManualNotes);
+                    }
+                };
+
+                hex.onmousedown = (e) => { e.stopPropagation(); trigger(); };
+                hex.onmouseenter = () => { if (isMouseDown) trigger(); };
+                noteLayer.appendChild(hex);
+
+                const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                txt.setAttribute("x", p.x); txt.setAttribute("y", p.y + 5);
+                txt.setAttribute("text-anchor", "middle");
+                txt.setAttribute("class", "hex-text");
+                txt.textContent = p.note;
+                noteLayer.appendChild(txt);
+            });
+        }
+
+        function hexPoints(x, y, s) {
+            let pts = [];
+            for (let i = 0; i < 6; i++) {
+                let angle = (i * 60 - 30) * Math.PI / 180;
+                pts.push(`${x + s * Math.cos(angle)},${y + s * Math.sin(angle)}`);
+            }
+            return pts.join(" ");
+        }
+
+        function createTriangle(p1, p2, p3, isMajor, id) {
+            const tri = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+            tri.setAttribute("points", `${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}`);
+            tri.setAttribute("class", `chord-trigger ${isMajor ? 'major' : 'minor'}`);
+            tri.id = id;
+            
+            const trigger = () => {
+                if (lastId === id) return;
+                lastId = id;
+                
+                stopManualPlay();
+                
+                document.getElementById(id).classList.add('active');
+                if(isStarted) {
+                    const rootIdx = p1.index;
+                    let chord = isMajor ? 
+                        [rootIdx, rootIdx + 7, rootIdx + 19, rootIdx + 26] : 
+                        [rootIdx, rootIdx + 7, rootIdx + 18, rootIdx + 29];
+                    currentManualNotes = chord.map(s => notes[((s % 12) + 12) % 12] + Math.floor(s / 12));
+                    synth.triggerAttack(currentManualNotes);
+                }
+            };
+            tri.onmousedown = () => trigger();
+            tri.onmouseenter = () => { if (isMouseDown) trigger(); };
+            chordLayer.appendChild(tri);
+            chordTriggers.push({id, p1, isMajor});
+        }
+
+        function stopManualPlay() {
+            if (synth && currentManualNotes.length > 0) {
+                synth.triggerRelease(currentManualNotes);
+                currentManualNotes = [];
+            }
+            // Clear visual manual highlights
+            document.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
+        }
+
+        function updateClock() {
+            if (!isGenerative) return;
+            const elapsed = Tone.now() - startTime;
+            const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+            const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+            const s = String(Math.floor(elapsed % 60)).padStart(2, '0');
+            clockDisplay.innerText = `${h}:${m}:${s}`;
+            requestAnimationFrame(updateClock);
+        }
+
+        function toggleGenerative() {
+            if (!isStarted) return;
+            isGenerative = !isGenerative;
+
+            if (isGenerative) {
+                genToggle.classList.add('active');
+                startTime = Tone.now();
+                Tone.Transport.start();
+                updateClock();
+                
+                genLoop = new Tone.Loop(time => {
+                    if (Math.random() > 0.4) {
+                        const isChord = Math.random() > 0.3;
+                        if (isChord) {
+                            const tri = chordTriggers[Math.floor(Math.random() * chordTriggers.length)];
+                            const rootIdx = tri.p1.index;
+                            let chord = tri.isMajor ? 
+                                [rootIdx, rootIdx + 7, rootIdx + 19, rootIdx + 26] : 
+                                [rootIdx, rootIdx + 7, rootIdx + 18, rootIdx + 29];
+                            const freqChord = chord.map(s => notes[((s % 12) + 12) % 12] + Math.floor(s / 12));
+                            
+                            synth.triggerAttackRelease(freqChord, "2n", time);
+                            Tone.Draw.schedule(() => {
+                                const el = document.getElementById(tri.id);
+                                if (el) {
+                                    el.classList.add('active');
+                                    setTimeout(() => el.classList.remove('active'), 1200);
+                                }
+                            }, time);
+                        } else {
+                            const noteGroup = centers.flat();
+                            const p = noteGroup[Math.floor(Math.random() * noteGroup.length)];
+                            synth.triggerAttackRelease(p.note, "4n", time);
+                            Tone.Draw.schedule(() => {
+                                const el = document.getElementById(p.id);
+                                if (el) {
+                                    el.classList.add('active');
+                                    setTimeout(() => el.classList.remove('active'), 600);
+                                }
+                            }, time);
+                        }
+                    }
+                }, "2n").start(0);
+                
+                Tone.Transport.swing = 0.25;
+                Tone.Transport.bpm.value = 62;
+            } else {
+                genToggle.classList.remove('active');
+                if (genLoop) {
+                    genLoop.stop();
+                    genLoop.dispose();
+                }
+                Tone.Transport.stop();
+                clockDisplay.innerText = "00:00:00";
+                // Don't stop manual play, just release transport loop
+            }
+        }
+
+        // Fader Handlers
+        document.getElementById('grit').oninput = (e) => { if(distortion) distortion.distortion = e.target.value * 0.08; };
+        document.getElementById('vibrato-depth').oninput = (e) => { if(vibrato) vibrato.depth.value = e.target.value * 0.5; };
+        document.getElementById('cutoff').oninput = (e) => { if(filter) filter.frequency.value = e.target.value; };
+        document.getElementById('delay-wet').oninput = (e) => { if(delay) delay.wet.value = e.target.value; };
+        document.getElementById('noise-vol').oninput = (e) => { if(noiseGain) noiseGain.gain.value = e.target.value * 0.25; };
+
+        startBtn.onclick = initAudio;
+        genToggle.onclick = toggleGenerative;
+        createGrid();
+    </script>
+</body>
+</html>

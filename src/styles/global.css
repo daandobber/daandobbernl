@@ -1,0 +1,198 @@
+/* --------------------------------------
+   1) Tailwind & configuratie
+-------------------------------------- */
+@import "tailwindcss";
+@import "nouislider/dist/nouislider.css";
+/* config for tailwindcss-typography plugin */
+@config "../../tailwind.config.ts";
+
+/* Gebruik de selector-based dark mode van Tailwind */
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Thema-variabelen */
+@theme {
+	--color-global-bg: oklch(76.68% 0 0);
+	--color-global-text: oklch(0% 0 0);
+	--color-link: oklch(69.52% 0.1502 135.1);
+	--color-accent: oklch(69.52% 0.1502 135.1);
+	--color-accent-2: oklch(18.15% 0 0);
+	--color-quote: oklch(55.27% 0.195 19.06);
+}
+
+@layer base {
+	html {
+		min-height: 100%;
+		color-scheme: light dark;
+		accent-color: var(--color-accent);
+
+		&[data-theme="light"] {
+			color-scheme: light;
+		}
+
+		&[data-theme="dark"] {
+			color-scheme: dark;
+			--color-global-bg: oklch(23.64% 0.0045 248);
+			--color-global-text: oklch(83.54% 0 264);
+			--color-link: oklch(70.44% 0.1133 349);
+			--color-accent: oklch(63.5% 0.1467 286.94);
+			--color-accent-2: oklch(94.66% 0 0);
+			--color-quote: oklch(94.8% 0.106 136.49);
+		}
+	}
+
+	body {
+		margin: 0;
+		padding: 0;
+		min-height: 100%;
+	}
+}
+
+/* --------------------------------------
+   2) Achtergrond/raster voor body
+-------------------------------------- */
+@layer base {
+
+	/* Light theme */
+	html[data-theme="light"] body {
+		background-color: #8A8A8A;
+		background-image:
+			/* 1) Raster – verticaal */
+			linear-gradient(0deg,
+				transparent 24%,
+				rgba(255, 255, 255, 0.05) 25%,
+				rgba(255, 255, 255, 0.05) 26%,
+				transparent 27%,
+				transparent 74%,
+				rgba(255, 255, 255, 0.05) 75%,
+				rgba(255, 255, 255, 0.05) 76%,
+				transparent 77%,
+				transparent),
+			/* 2) Raster – horizontaal */
+			linear-gradient(90deg,
+				transparent 24%,
+				rgba(255, 255, 255, 0.05) 25%,
+				rgba(255, 255, 255, 0.05) 26%,
+				transparent 27%,
+				transparent 74%,
+				rgba(255, 255, 255, 0.05) 75%,
+				rgba(255, 255, 255, 0.05) 76%,
+				transparent 77%,
+				transparent),
+			/* 3) Ondoorzichtige verticale kleurverloop */
+			linear-gradient(#8A8A8A, #282828);
+		background-repeat: repeat, repeat, no-repeat;
+		background-size: 50px 50px, 50px 50px, 100% 100%;
+	}
+
+	/* Dark theme */
+	html[data-theme="dark"] body {
+		background-color: #333333;
+		background-image:
+			/* 1) Raster verticaal */
+			linear-gradient(0deg,
+				transparent 24%,
+				rgba(255, 255, 255, 0.05) 25%,
+				rgba(255, 255, 255, 0.05) 26%,
+				transparent 27%,
+				transparent 74%,
+				rgba(255, 255, 255, 0.05) 75%,
+				rgba(255, 255, 255, 0.05) 76%,
+				transparent 77%,
+				transparent),
+			/* 2) Raster horizontaal */
+			linear-gradient(90deg,
+				transparent 24%,
+				rgba(255, 255, 255, 0.05) 25%,
+				rgba(255, 255, 255, 0.05) 26%,
+				transparent 27%,
+				transparent 74%,
+				rgba(255, 255, 255, 0.05) 75%,
+				rgba(255, 255, 255, 0.05) 76%,
+				transparent 77%,
+				transparent),
+			/* 3) Donkere verticale gradient */
+			linear-gradient(#333333, #111111);
+		background-repeat: repeat, repeat, no-repeat;
+		background-size: 50px 50px, 50px 50px, 100% 100%;
+	}
+}
+
+/* --------------------------------------
+   3) Component-stijlen
+-------------------------------------- */
+@layer components {
+	.cactus-link {
+		@apply hover:decoration-link underline underline-offset-2 hover:decoration-2;
+	}
+
+	.title {
+		@apply text-accent-2 text-2xl font-semibold;
+	}
+
+	button {
+		@apply border border-black px-3 py-2;
+	}
+
+	/* Admonition-voorbeelden (optioneel) */
+	.admonition {
+		--admonition-color: var(--tw-prose-quotes);
+		@apply my-4 border-s-2 border-[--admonition-color] py-4 ps-4;
+	}
+
+	/* ------------------------------------
+     D&D-sheet: perkament-look
+  ------------------------------------ */
+	.dnd-sheet {
+		/* Basisklassen en font */
+		@apply relative p-6 mb-6 rounded-md transition-colors text-stone-800 font-serif;
+		/*
+      LIGHT MODE:
+      - Gebruikt standaard background-image + een lichte overlay
+        (zodat tekstcontrasten iets zachter zijn).
+    */
+		background-position: center;
+		background-color: rgba(255, 255, 255, 0.0);
+	}
+
+	/*
+    DARK MODE:
+    - Zelfde perkamentafbeelding, maar met multiply-blend,
+      plus een donkerdere achtergrondkleur voor voldoende contrast.
+    - Tekstkleur lichter (text-stone-100).
+  */
+	[data-theme="dark"] .dnd-sheet {
+		color: oklch(83.54% 0 264);
+		background-color: rgba(30, 30, 30, 0.0);
+	}
+}
+
+/* --------------------------------------
+   4) Utilities (optioneel)
+-------------------------------------- */
+@utility prose {
+	--tw-prose-body: var(--color-global-text);
+	--tw-prose-bold: var(--color-global-text);
+	--tw-prose-bullets: var(--color-global-text);
+	--tw-prose-code: var(--color-global-text);
+	--tw-prose-headings: var(--color-accent-2);
+	--tw-prose-hr: 0.5px dashed #666;
+	--tw-prose-links: var(--color-global-text);
+	--tw-prose-quotes: var(--color-quote);
+	--tw-prose-th-borders: #666;
+}
+
+/* --------------------------------------
+   5) Extra content-box styling
+-------------------------------------- */
+@layer base {
+	.content-box {
+		background-color: rgba(255, 255, 255, 0.7);
+		padding: 2rem;
+		border-radius: 0.5rem;
+	}
+
+	[data-theme="dark"] .content-box {
+		background-color: rgba(40, 40, 40, 0.7);
+		color: #fff;
+	}
+}

@@ -1,0 +1,44 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+import FilterSortListWrapper from "@/components/FilterSortListWrapper.svelte";
+import cdCollectionData from "@/data/cd_collection.json";
+import type { Release, SortOption, SiteMeta } from "@/types";
+
+const releases: Release[] = cdCollectionData?.releases ?? [];
+
+const searchFields: string[] = ["basic_information.title", "basic_information.artists.name"];
+
+const sortOptions: SortOption[] = [
+	{ id: "artistAZ", label: "Artiest (A-Z)", order: "asc", sortKey: "artist" },
+	{ id: "artistZA", label: "Artiest (Z-A)", order: "desc", sortKey: "artist" },
+	{ id: "yearNewOld", label: "Jaar (Nieuw-Oud)", order: "desc", sortKey: "year" },
+	{ id: "yearOldNew", label: "Jaar (Oud-Nieuw)", order: "asc", sortKey: "year" },
+];
+
+const initialSortId: string = "artistAZ";
+
+const years = releases.map((r) => r.basic_information?.year).filter((y) => y && y > 0) as number[];
+const minYear = years.length > 0 ? Math.min(...years) : 1900;
+const maxYear = years.length > 0 ? Math.max(...years) : new Date().getFullYear();
+const allGenres = [...new Set(releases.flatMap((r) => r.basic_information?.genres || []))].sort();
+
+const meta: SiteMeta = {
+	title: "Mijn CD Collectie",
+	description: "Een doorzoekbaar en sorteerbaar overzicht van mijn CD collectie.",
+};
+---
+
+<PageLayout meta={meta}>
+	<h1 class="title mb-6 text-2xl font-bold">Mijn CD Collectie</h1>
+
+	<FilterSortListWrapper
+		client:only="svelte"
+		items={releases}
+		searchFields={searchFields}
+		sortOptions={sortOptions}
+		initialSortId={initialSortId}
+		sliderMinYear={minYear}
+		sliderMaxYear={maxYear}
+		availableGenres={allGenres}
+	/>
+</PageLayout>
