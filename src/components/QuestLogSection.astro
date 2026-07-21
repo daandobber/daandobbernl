@@ -1,5 +1,15 @@
 ---
-const { quests } = Astro.props;
+interface Quest {
+	period: string;
+	title: string;
+	description: string;
+}
+
+interface Props {
+	quests: Quest[];
+}
+
+const { quests } = Astro.props as Props;
 ---
 
 <section class="mb-6 rounded-md border-2 border-stone-800 p-4 dark:border-white">

@@ -28,6 +28,9 @@
 			"semicolons": "always"
 		}
 	},
+	"files": {
+		"ignore": ["public/**", "src/data/**", "httpdocs/**"]
+	},
 	"vcs": {
 		"clientKind": "git",
 		"enabled": true,

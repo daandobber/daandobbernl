@@ -3,12 +3,6 @@ import type { Config } from "tailwindcss";
 export default {
     content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx}"],
 
-    safelist: [
-		{
-			pattern: 'noUi-.*',
-		},
-	],
-
     plugins: [require("@tailwindcss/typography")],
     theme: {
 		extend: {

@@ -1,0 +1,74 @@
+name: Scrape en Update Kruidvat Data
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Dagelijks om middernacht
+  workflow_dispatch:  # Handmatig starten
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛠️ Haal repo op
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Haal alle bestanden op
+
+      - name: 📂 Controleer bestanden
+        run: ls -lah scripts/
+
+      - name: 🐍 Installeer Python en dependencies
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - run: pip install requests beautifulsoup4
+
+      - name: 🔍 Controleer en voer scraper uit
+        run: |
+          if [ -f scripts/scraper-kruidvat-odorex.py ]; then
+            echo "✅ Script gevonden! Nu uitvoeren..."
+            python scripts/scraper-kruidvat-odorex.py
+          else
+            echo "❌ FOUT: Script niet gevonden!"
+            exit 1
+          fi
+
+      - name: 📌 Commit en push nieuwe JSON
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+          git add src/data/scraper-kruidvat-odorex.json
+          git commit -m "🔄 Update Kruidvat JSON" || echo "Geen wijzigingen om te committen"
+          git push origin master || (git pull origin master --rebase && git push origin master)
+
+      - name: 📲 Stuur Telegram-melding
+        if: success()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          MESSAGE="🛍️ *Kruidvat JSON is geüpdatet!*\n\n💰 *Nieuwe prijs:* €$(jq -r '.price' src/data/scraper-kruidvat-odorex.json)\n🎉 *Actie:* $(jq -r '.offer' src/data/scraper-kruidvat-odorex.json)"
+          
+          curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+            -d chat_id="$TELEGRAM_CHAT_ID" \
+            -d text="$MESSAGE" \
+            -d parse_mode="Markdown"
+
+      - name: 🚀 Forceer Astro rebuild en deploy
+        run: |
+          npm install  # Installeer Astro en dependencies
+          npm run build  # Bouw de site opnieuw
+          touch src/pages/scrapers.astro  # Fake wijziging zodat Astro het ziet
+          git add src/pages/scrapers.astro
+          git commit -m "🔄 Force rebuild scrapers page" || echo "Geen wijzigingen om te committen"
+          git push origin main
+
+      - name: 🔄 Trigger GitHub Pages Build
+        run: |
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/daandobber/daandobber.github.io/pages/builds

@@ -1,0 +1,50 @@
+name: Fetch Collection Data Daily
+
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+jobs:
+  fetch-and-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      - name: Run Python script to fetch Discogs data
+        env:
+          DISCOGS_TOKEN: ${{ secrets.DISCOGS_TOKEN }}
+          DISCOGS_USERNAME: ${{ secrets.DISCOGS_USERNAME }}
+        run: python scripts/Workspace_discogs.py
+
+      - name: Run Python script to fetch BGG data
+        env:
+          BGG_USERNAME: ${{ secrets.BGG_USERNAME }}
+        run: python scripts/fetch_bgg_collection.py
+
+      - name: Run Python script to fetch Steam data
+        env:
+          STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
+          STEAM_USER_ID: ${{ secrets.STEAM_USER_ID }}
+        run: python scripts/fetch_steam_library.py
+
+      - name: Commit and push if data changed
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: Update collection data (Discogs, BGG & Steam)"
+          file_pattern: "src/data/*.json"
+          commit_user_name: "GitHub Actions Bot"
+          commit_user_email: "actions@github.com"
+          commit_author: "GitHub Actions Bot <actions@github.com>"
+          # branch: jouw-branch-naam # Optioneel

@@ -1,6 +1,8 @@
 {
 	"name": "daandobbernl",
 	"version": "6.1.0",
+	"private": true,
+	"type": "module",
 	"scripts": {
 		"dev": "astro dev",
 		"start": "astro dev",
