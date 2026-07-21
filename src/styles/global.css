@@ -196,3 +196,48 @@
 		color: #fff;
 	}
 }
+
+/* Fruity-aero glass treatment */
+html[data-theme="light"] body {
+	background-color: #bdefff;
+	background-image:
+		radial-gradient(circle at 12% 8%, rgb(255 191 225 / 82%), transparent 32%),
+		radial-gradient(circle at 88% 12%, rgb(184 255 216 / 74%), transparent 30%),
+		linear-gradient(155deg, #d9f8ff 0%, #a9dbf4 48%, #b4b8ed 100%);
+	background-attachment: fixed;
+}
+
+.aero-header {
+	background: linear-gradient(135deg, rgb(255 255 255 / 76%), rgb(196 245 255 / 52%));
+	border: 1px solid rgb(255 255 255 / 82%);
+	box-shadow: 0 14px 35px rgb(24 112 145 / 18%), inset 0 1px 0 rgb(255 255 255 / 95%);
+	backdrop-filter: blur(16px) saturate(145%);
+}
+
+.site-brand {
+	background: linear-gradient(90deg, #075985, #7c3aed 52%, #db2777);
+	background-clip: text;
+	color: transparent;
+	text-shadow: 0 1px 0 rgb(255 255 255 / 60%);
+}
+
+.content-box {
+	background: linear-gradient(145deg, rgb(255 255 255 / 84%), rgb(232 252 255 / 70%));
+	border: 1px solid rgb(255 255 255 / 74%);
+	border-radius: 1.5rem;
+	box-shadow: 0 20px 50px rgb(37 98 135 / 18%), inset 0 1px 0 rgb(255 255 255 / 90%);
+	backdrop-filter: blur(18px) saturate(135%);
+}
+
+[data-theme="dark"] .aero-header {
+	background: linear-gradient(135deg, rgb(12 45 62 / 84%), rgb(47 35 84 / 70%));
+	border-color: rgb(142 226 255 / 24%);
+}
+
+[data-theme="dark"] .site-brand {
+	background-image: linear-gradient(90deg, #67e8f9, #c4b5fd 52%, #f9a8d4);
+}
+
+@media (max-width: 639px) {
+	.content-box { padding: 1.25rem; border-radius: 1.1rem; }
+}
