@@ -1,5 +1,23 @@
 ---
-const { character, abilities } = Astro.props;
+interface Character {
+	class: string;
+	level: number;
+	race: string;
+	background: string;
+	alignment: string;
+}
+
+interface Ability {
+	name: string;
+	value: number;
+}
+
+interface Props {
+	character: Character;
+	abilities: Ability[];
+}
+
+const { character, abilities } = Astro.props as Props;
 ---
 
 <section class="mb-6 rounded-md border-2 border-stone-800 p-4 dark:border-white">

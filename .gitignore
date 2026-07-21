@@ -25,6 +25,11 @@ Thumbs.db
 __pycache__/
 *.pyc
 venv/
+.venv/
+
+# Temporary and backup files
+tmp/
+*.bak
 
 # Scripts data (optional - comment out if you want to commit)
 # scripts/src/data/

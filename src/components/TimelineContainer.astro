@@ -1,8 +1,19 @@
 ---
+interface TimelineItem {
+	period: string;
+	title?: string;
+	description?: string;
+}
+
+interface Props {
+	title?: string;
+	items?: TimelineItem[];
+}
+
 const {
 	title = "Blok",
 	items = [],
-} = Astro.props;
+} = Astro.props as Props;
 ---
 
 <section class="mb-6 rounded-md border-2 border-stone-800 p-4 dark:border-white">

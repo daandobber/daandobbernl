@@ -97,6 +97,7 @@ export interface BasicInformation {
     title?: string;
     artists?: Artist[];
     year?: number;
+    genres?: string[];
     cover_image?: string;
     resource_url: string; // URL naar de API resource
     // Voeg hier eventueel andere Discogs basic_information velden toe
