@@ -1,0 +1,81 @@
+<aquarium-logo class="aquarium" data-on="true">
+	<div class="tank" aria-hidden="true">
+		<div class="layer far animated"></div>
+		<div class="layer background-fish animated"></div>
+		<div class="fish">
+			<div class="zebra animated"></div>
+			<div class="clown animated"></div>
+			<div class="butterfly animated"></div>
+		</div>
+		<div class="layer near animated"></div>
+		<div class="water-glass"></div>
+	</div>
+	<button class="power" type="button" aria-label="Aquariumanimatie pauzeren" aria-pressed="false">
+		<span aria-hidden="true"></span>
+	</button>
+</aquarium-logo>
+
+<script>
+	class AquariumLogo extends HTMLElement {
+		connectedCallback() {
+			const button = this.querySelector<HTMLButtonElement>(".power");
+			const tank = this.querySelector<HTMLElement>(".tank");
+			const animated = this.querySelectorAll<HTMLElement>(".animated");
+
+			button?.addEventListener("click", () => {
+				const isOn = this.dataset.on === "true";
+				this.dataset.on = String(!isOn);
+				button.setAttribute("aria-pressed", String(isOn));
+				button.setAttribute("aria-label", isOn ? "Aquariumanimatie hervatten" : "Aquariumanimatie pauzeren");
+				tank?.classList.toggle("is-off", isOn);
+				for (const element of animated) element.style.animationPlayState = isOn ? "paused" : "running";
+			});
+		}
+	}
+
+	if (!customElements.get("aquarium-logo")) customElements.define("aquarium-logo", AquariumLogo);
+</script>
+
+<style>
+	.aquarium { --scale: .42; position: fixed; right: 1rem; bottom: .75rem; z-index: 40; display: block; width: calc(400px * var(--scale)); height: calc(294px * var(--scale)); filter: drop-shadow(0 8px 12px rgb(15 86 109 / 25%)); isolation: isolate; }
+	.aquarium::before, .aquarium::after { content: ""; position: absolute; left: 0; z-index: 20; display: block; width: calc(400px * var(--scale)); background-repeat: no-repeat; background-size: 100% 100%; pointer-events: none; }
+	.aquarium::before { top: 0; height: calc(46px * var(--scale)); background-image: url("/assets/aquarium/tank-top.avif"); }
+	.aquarium::after { top: calc(200px * var(--scale)); height: calc(94px * var(--scale)); background-image: url("/assets/aquarium/tank-base.avif"); }
+	.tank { position: absolute; top: calc(5px * var(--scale)); left: calc(5px * var(--scale)); width: calc(390px * var(--scale)); height: calc(240px * var(--scale)); overflow: hidden; background: #00bbf3; box-shadow: 0 0 12px 2px rgb(104 220 248 / 70%); transition: filter 250ms ease, box-shadow 250ms ease; }
+	.tank.is-off { filter: brightness(.48) saturate(.7); box-shadow: 0 2px 4px rgb(0 0 0 / 35%); }
+	.layer { position: absolute; width: calc(1158px * var(--scale)); height: 100%; background-repeat: repeat-x; background-size: auto 100%; }
+	.far { z-index: 0; background-color: #00bbf3; background-image: url("/assets/aquarium/background-far.avif"); animation: aquarium-slide 50s linear infinite; }
+	.background-fish { z-index: 2; background-image: url("/assets/aquarium/background-fish.avif"); animation: aquarium-slide 45s linear infinite; }
+	.near { z-index: 5; background-image: url("/assets/aquarium/background-near.avif"); animation: aquarium-slide 35s linear infinite; }
+	.fish { position: absolute; inset: 0; z-index: 3; }
+	.fish > div { position: absolute; width: calc(100px * var(--scale)); background-repeat: no-repeat; background-size: contain; }
+	.clown { top: calc(20px * var(--scale)); left: calc(-105px * var(--scale)); height: calc(100px * var(--scale)); background-image: url("/assets/aquarium/fish-clown.avif"); animation: aquarium-swim 13s ease-in-out -3s infinite; }
+	.zebra { top: calc(125px * var(--scale)); left: calc(-105px * var(--scale)); height: calc(52px * var(--scale)); background-image: url("/assets/aquarium/fish-zebra.avif"); animation: aquarium-swim-low 9s ease-in-out -7s infinite; }
+	.butterfly { top: calc(65px * var(--scale)); right: calc(-105px * var(--scale)); height: calc(100px * var(--scale)); background-image: url("/assets/aquarium/fish-butterfly.avif"); animation: aquarium-swim-reverse 16s ease-in-out -11s infinite; }
+	.water-glass { position: absolute; inset: 0; z-index: 10; background: linear-gradient(115deg, rgb(255 255 255 / 24%), transparent 34%, rgb(58 209 255 / 8%)); box-shadow: inset 8px 0 8px rgb(244 244 244 / 60%), inset -8px 0 8px rgb(244 244 244 / 60%); pointer-events: none; }
+	.power { position: absolute; right: calc(70px * var(--scale)); bottom: calc(4px * var(--scale)); z-index: 30; display: grid; width: max(24px, calc(30px * var(--scale))); height: max(20px, calc(20px * var(--scale))); padding: 0; place-items: center; border: 0; background: transparent; cursor: pointer; }
+	.power span { display: block; width: 7px; height: 7px; border-radius: 50%; background: #77ffbf; box-shadow: 0 0 5px #77ffbf; }
+	.power[aria-pressed="true"] span { background: #ff8b8b; box-shadow: 0 0 4px #ff8b8b; }
+	.power:focus-visible { outline: 2px solid #67e8f9; outline-offset: 1px; }
+	@keyframes aquarium-slide { to { transform: translate3d(calc(-772px * var(--scale)), 0, 0); } }
+	@keyframes aquarium-swim {
+		0% { transform: translate3d(0, 0, 0); }
+		45% { transform: translate3d(calc(300px * var(--scale)), calc(26px * var(--scale)), 0); }
+		55% { transform: translate3d(calc(300px * var(--scale)), calc(26px * var(--scale)), 0) scaleX(-1); }
+		95%, 100% { transform: translate3d(0, 0, 0) scaleX(-1); }
+	}
+	@keyframes aquarium-swim-low {
+		0% { transform: translate3d(0, 0, 0); }
+		45% { transform: translate3d(calc(360px * var(--scale)), calc(-18px * var(--scale)), 0); }
+		55% { transform: translate3d(calc(360px * var(--scale)), calc(-18px * var(--scale)), 0) scaleX(-1); }
+		95%, 100% { transform: translate3d(0, 0, 0) scaleX(-1); }
+	}
+	@keyframes aquarium-swim-reverse {
+		0% { transform: translate3d(0, 0, 0); }
+		45% { transform: translate3d(calc(-350px * var(--scale)), calc(32px * var(--scale)), 0); }
+		55% { transform: translate3d(calc(-350px * var(--scale)), calc(32px * var(--scale)), 0) scaleX(-1); }
+		95%, 100% { transform: translate3d(0, 0, 0) scaleX(-1); }
+	}
+	@media (max-width: 639px) { .aquarium { --scale: .3; right: .35rem; bottom: .35rem; } }
+	@media (prefers-reduced-motion: reduce) { .animated { animation-play-state: paused !important; } }
+</style>
