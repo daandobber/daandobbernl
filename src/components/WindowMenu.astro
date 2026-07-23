@@ -1,0 +1,190 @@
+---
+import Search from "@/components/Search.astro";
+import { menuLinks } from "@/site.config";
+---
+
+<window-menu class="window-menu">
+	<button class="window-menu__button" type="button" aria-expanded="false"><span aria-hidden="true">❖</span> Start</button>
+	<div class="window-menu__panel" hidden>
+		<div class="start-search"><Search /></div>
+		<p>Pagina's</p>
+		{menuLinks.map((link) => <button type="button" data-window-path={link.path} data-window-title={link.title}><span aria-hidden="true">▣</span>{link.title}</button>)}
+		<details class="start-submenu">
+			<summary><span aria-hidden="true">◉</span><span>Collecties</span><span class="start-submenu__arrow" aria-hidden="true">›</span></summary>
+			<div class="start-submenu__items">
+				<button type="button" data-window-path="/cd-collectie/" data-window-title="CD-collectie"><span aria-hidden="true">💿</span>CD-collectie</button>
+			</div>
+		</details>
+	</div>
+</window-menu>
+
+<script>
+	class WindowMenu extends HTMLElement {
+		#topLayer = 100;
+		#count = 0;
+		#taskButtons = new Map<HTMLElement, HTMLButtonElement>();
+		connectedCallback() {
+			if (window.self !== window.top) return;
+			const toggle = this.querySelector<HTMLButtonElement>(".window-menu__button");
+			const panel = this.querySelector<HTMLElement>(".window-menu__panel");
+			if (!toggle || !panel) return;
+			const setOpen = (open: boolean) => { panel.hidden = !open; toggle.setAttribute("aria-expanded", String(open)); };
+			toggle.addEventListener("click", () => setOpen(panel.hidden));
+			document.addEventListener("pointerdown", (event) => { if (!this.contains(event.target as Node)) setOpen(false); });
+			for (const button of this.querySelectorAll<HTMLButtonElement>("[data-window-path]")) button.addEventListener("click", () => {
+				setOpen(false);
+				this.openWindow(button.dataset.windowPath ?? "/", button.dataset.windowTitle ?? "Pagina");
+			});
+			document.addEventListener("aqua-open-window", ((event: CustomEvent<{ path?: string; title?: string }>) => {
+				this.openWindow(event.detail.path ?? "/", event.detail.title ?? "Pagina");
+			}) as EventListener);
+			const main = document.querySelector<HTMLElement>("#main.aero-window");
+			const bar = main?.querySelector<HTMLElement>(".aero-titlebar");
+			if (main && bar) {
+				main.hidden = true;
+			}
+		}
+		openWindow(path: string, title: string) {
+			const existing = document.querySelector<HTMLElement>(`.spawned-window[data-path="${CSS.escape(path)}"]`);
+			if (existing) {
+				existing.hidden = false;
+				existing.classList.remove("is-minimized");
+				this.raise(existing);
+				return;
+			}
+			const windowEl = document.createElement("section");
+			this.#count += 1;
+			windowEl.className = "spawned-window";
+			windowEl.dataset.path = path;
+			windowEl.dataset.windowTitle = title;
+			windowEl.style.left = `${18 + this.#count * 28}px`;
+			windowEl.style.top = `${18 + this.#count * 24}px`;
+			const isDocuments = path === "aqua://documents";
+			windowEl.innerHTML = `<div class="spawned-window__bar"><div class="window-controls"><button class="window-control window-control--minimize" type="button" aria-label="Venster minimaliseren" data-window-minimize></button><button class="window-control window-control--maximize" type="button" aria-label="Venster maximaliseren" data-window-maximize></button><button class="window-control window-control--close" type="button" aria-label="Venster sluiten" data-window-close></button></div><strong></strong></div>${isDocuments ? `<div class="folder-window"><button class="folder-file" type="button"><span aria-hidden="true">▤</span><strong>CV</strong><small>Document</small></button></div>` : `<iframe title="${title}"></iframe>`}`;
+			windowEl.querySelector("strong")!.textContent = title;
+			const frame = windowEl.querySelector<HTMLIFrameElement>("iframe");
+			if (frame) {
+				frame.src = path;
+				frame.addEventListener("load", () => {
+					frame.contentDocument?.documentElement.classList.add("embedded-page");
+					const embeddedMain = frame.contentDocument?.querySelector<HTMLElement>("#main");
+					if (embeddedMain) embeddedMain.hidden = false;
+				});
+			}
+			windowEl.querySelector<HTMLButtonElement>(".folder-file")?.addEventListener("dblclick", () => this.openWindow("/cv/", "CV"));
+			this.setupControls(windowEl, true);
+			windowEl.addEventListener("pointerdown", () => this.raise(windowEl));
+			(document.querySelector(".window-workspace") ?? document.body).append(windowEl);
+			this.makeDraggable(windowEl, windowEl.querySelector<HTMLElement>(".spawned-window__bar")!);
+			this.addTaskButton(windowEl, title);
+			this.raise(windowEl);
+		}
+		addTaskButton(windowEl: HTMLElement, title: string) {
+			const taskbar = document.querySelector<HTMLElement>("#taskbar-running");
+			if (!taskbar || this.#taskButtons.has(windowEl)) return;
+			const button = document.createElement("button");
+			button.type = "button";
+			button.className = "taskbar-window-button";
+			button.innerHTML = `<span aria-hidden="true">▣</span><span></span>`;
+			button.querySelector<HTMLElement>("span:last-child")!.textContent = title;
+			button.title = title;
+			button.addEventListener("click", () => {
+				const isActive = button.classList.contains("is-active");
+				if (!windowEl.hidden && !windowEl.classList.contains("is-minimized") && isActive) {
+					windowEl.classList.add("is-minimized");
+					button.classList.remove("is-active");
+					return;
+				}
+				windowEl.hidden = false;
+				windowEl.classList.remove("is-minimized");
+				this.raise(windowEl);
+			});
+			taskbar.append(button);
+			this.#taskButtons.set(windowEl, button);
+		}
+		raise(element: HTMLElement) {
+			element.style.zIndex = String(++this.#topLayer);
+			for (const [windowEl, button] of this.#taskButtons) {
+				button.classList.toggle("is-active", windowEl === element && !element.hidden && !element.classList.contains("is-minimized"));
+			}
+		}
+		setupControls(windowEl: HTMLElement, removeOnClose: boolean) {
+			windowEl.querySelector<HTMLButtonElement>("[data-window-close]")?.addEventListener("click", () => {
+				if (removeOnClose) {
+					windowEl.remove();
+					this.#taskButtons.get(windowEl)?.remove();
+					this.#taskButtons.delete(windowEl);
+				} else {
+					windowEl.hidden = true;
+					this.#taskButtons.get(windowEl)?.classList.remove("is-active");
+				}
+			});
+			windowEl.querySelector<HTMLButtonElement>("[data-window-minimize]")?.addEventListener("click", (event) => {
+				windowEl.classList.toggle("is-minimized");
+				windowEl.classList.remove("is-maximized");
+				this.#taskButtons.get(windowEl)?.classList.remove("is-active");
+				(event.currentTarget as HTMLButtonElement).setAttribute("aria-label", windowEl.classList.contains("is-minimized") ? "Venster herstellen" : "Venster minimaliseren");
+			});
+			windowEl.querySelector<HTMLButtonElement>("[data-window-maximize]")?.addEventListener("click", (event) => {
+				windowEl.classList.toggle("is-maximized");
+				windowEl.classList.remove("is-minimized");
+				this.raise(windowEl);
+				(event.currentTarget as HTMLButtonElement).setAttribute("aria-label", windowEl.classList.contains("is-maximized") ? "Venster herstellen" : "Venster maximaliseren");
+			});
+		}
+		makeDraggable(windowEl: HTMLElement, handle: HTMLElement) {
+			handle.addEventListener("pointerdown", (event) => {
+				if ((event.target as HTMLElement).closest("button") || windowEl.classList.contains("is-maximized")) return;
+				const rect = windowEl.getBoundingClientRect();
+				const workspace = windowEl.closest<HTMLElement>(".window-workspace");
+				const workspaceRect = workspace?.getBoundingClientRect();
+				const offsetX = event.clientX - rect.left;
+				const offsetY = event.clientY - rect.top;
+				handle.setPointerCapture(event.pointerId);
+				const move = (moveEvent: PointerEvent) => {
+					windowEl.style.position = workspace ? "absolute" : "fixed"; windowEl.style.margin = "0";
+					const baseLeft = workspaceRect?.left ?? 0;
+					const baseTop = workspaceRect?.top ?? 0;
+					const taskbarHeight = document.querySelector<HTMLElement>(".aero-footer")?.offsetHeight ?? 50;
+					const maxLeft = Math.max(0, innerWidth - baseLeft - rect.width);
+					const maxTop = Math.max(0, innerHeight - taskbarHeight - baseTop - rect.height);
+					windowEl.style.left = `${Math.max(0, Math.min(maxLeft, moveEvent.clientX - baseLeft - offsetX))}px`;
+					windowEl.style.top = `${Math.max(0, Math.min(maxTop, moveEvent.clientY - baseTop - offsetY))}px`;
+				};
+				handle.addEventListener("pointermove", move);
+				handle.addEventListener("pointerup", () => handle.removeEventListener("pointermove", move), { once: true });
+			});
+		}
+	}
+	if (!customElements.get("window-menu")) customElements.define("window-menu", WindowMenu);
+</script>
+
+<style>
+	.window-menu { position: relative; z-index: 2001; display: block; margin-right: .35rem; }
+	.window-menu__button { display: flex; align-items: center; gap: .4rem; min-height: 2.15rem; padding: .35rem .7rem; border: 1px solid rgb(255 255 255 / 55%); border-radius: .7rem; background: linear-gradient(180deg, rgb(255 255 255 / 72%), rgb(135 215 241 / 48%)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 85%), 0 3px 9px rgb(22 86 122 / 14%); font-size: .72rem; font-weight: 800; cursor: pointer; }
+	.window-menu__panel { position: absolute; top: calc(100% + .55rem); right: 0; width: 13.5rem; padding: .45rem; border: 1px solid rgb(255 255 255 / 70%); border-radius: 1rem; background: linear-gradient(145deg, rgb(235 253 255 / 96%), rgb(186 224 246 / 94%), rgb(211 194 244 / 94%)); box-shadow: 0 18px 42px rgb(22 56 94 / 28%), inset 0 1px 0 #fff; backdrop-filter: blur(18px); }
+	.window-menu__panel[hidden] { display: none; }
+	.start-search { margin-bottom: .45rem; padding-bottom: .45rem; border-bottom: 1px solid rgb(255 255 255 / 38%); }
+	.start-search :global(site-search) { display: block; margin-left: 0 !important; }
+	.start-search :global(site-search > button) { display: flex; width: 100%; height: 2.35rem; padding: .45rem .65rem; align-items: center; justify-content: flex-start; gap: .55rem; border: 1px solid rgb(255 255 255 / 52%); border-radius: .65rem; background: rgb(255 255 255 / 34%); box-shadow: inset 0 1px 0 rgb(255 255 255 / 58%); }
+	.start-search :global(site-search > button::after) { content: "Zoeken..."; color: rgb(20 65 96 / 65%); font-size: .65rem; font-weight: 700; }
+	.start-search :global(site-search > button svg) { position: static; width: 1.15rem; height: 1.15rem; transform: none; }
+	.window-menu__panel p { margin: .3rem .55rem .45rem; color: rgb(20 65 96 / 62%); font-size: .58rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+	.window-menu__panel button { display: flex; width: 100%; align-items: center; gap: .65rem; padding: .65rem .7rem; border: 0; border-radius: .65rem; background: transparent; color: #143c5a; font-weight: 750; text-align: left; cursor: pointer; }
+	.window-menu__panel button:hover { background: rgb(255 255 255 / 58%); }
+	.start-submenu { position: relative; }
+	.start-submenu summary { display: flex; align-items: center; gap: .65rem; padding: .65rem .7rem; border-radius: .65rem; color: #143c5a; font-weight: 750; cursor: pointer; list-style: none; }
+	.start-submenu summary::-webkit-details-marker { display: none; }
+	.start-submenu summary:hover,
+	.start-submenu[open] > summary { background: rgb(255 255 255 / 58%); }
+	.start-submenu__arrow { margin-left: auto; font-size: 1rem; transition: transform .18s ease; }
+	.start-submenu[open] .start-submenu__arrow { transform: rotate(90deg); }
+	.start-submenu__items { margin: .15rem 0 .25rem 1.15rem; padding-left: .4rem; border-left: 1px solid rgb(52 120 155 / 22%); }
+	.start-submenu__items button { padding-block: .55rem; font-size: .7rem; }
+	:global([data-theme="dark"]) .window-menu__button { color: #e8faff; background: linear-gradient(180deg, rgb(102 198 235 / 36%), rgb(65 52 146 / 52%)); }
+	:global([data-theme="dark"]) .window-menu__panel { border-color: rgb(142 226 255 / 25%); background: linear-gradient(145deg, rgb(20 74 104 / 96%), rgb(52 45 118 / 96%), rgb(89 37 105 / 96%)); }
+	:global([data-theme="dark"]) .window-menu__panel :is(p, button) { color: #e8faff; }
+	:global([data-theme="dark"]) .start-submenu summary { color: #e8faff; }
+	:global([data-theme="dark"]) .window-menu__panel button:hover { background: rgb(255 255 255 / 11%); }
+	:global([data-theme="dark"]) .start-search :global(site-search > button::after) { color: rgb(226 248 255 / 68%); }
+</style>

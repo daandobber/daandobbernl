@@ -1,28 +1,19 @@
 ---
-import { menuLinks, siteConfig } from "@/site.config";
-
-const year = new Date().getFullYear();
+import LastFmStatus from "@/components/LastFmStatus.svelte";
+import ThemeToggle from "@/components/ThemeToggle.astro";
+import WindowMenu from "@/components/WindowMenu.astro";
 ---
 
-<footer
-	class="mt-auto flex w-full flex-col items-center justify-center gap-y-2 pt-20 pb-4 text-center align-top font-semibold text-gray-600 sm:flex-row sm:justify-between sm:text-xs dark:text-gray-400"
->
-	<div class="me-0 sm:me-4">
-		&copy; {siteConfig.author}
-		{year}.<span class="inline-block">&nbsp;??&nbsp;Astro Cactus</span>
+<footer class="aero-footer" aria-label="Aqua OS taakbalk">
+	<WindowMenu />
+	<div class="taskbar-running" id="taskbar-running" aria-label="Open vensters"></div>
+	<div class="taskbar-tray">
+		<div class="taskbar-lastfm">
+			<svg class="taskbar-lastfm-logo" aria-label="Last.fm" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+				<path fill="currentColor" d="M18.94 13.45a1.85 1.85 0 1 0 0 3.69 1.85 1.85 0 0 0 0-3.69Zm-4.23 0c-1.73 0-3.01 1.08-3.36 2.88-.31 1.58-1.51 2.67-3.15 2.67a3.16 3.16 0 1 1 1.74-5.78l.51-2.18a5.44 5.44 0 1 0 3.1 5.92c.19-.96.87-1.83 2.12-1.83a1.85 1.85 0 1 0 0-3.69c-.33 0-.65.04-.96.11Z" />
+			</svg>
+			<LastFmStatus embedded client:load />
+		</div>
+		<ThemeToggle />
 	</div>
-	<nav
-		aria-labelledby="footer_links"
-		class="flex gap-x-2 sm:gap-x-0 sm:divide-x sm:divide-gray-500"
-	>
-		<p id="footer_links" class="sr-only">More on this site</p>
-		{
-			menuLinks.map((link) => (
-				<a class="hover:text-global-text px-4 py-2 hover:underline sm:py-0" href={link.path}>
-					{link.title}
-				</a>
-			))
-		}
-	</nav>
 </footer>
-
