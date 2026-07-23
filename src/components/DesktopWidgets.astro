@@ -1,0 +1,68 @@
+---
+import AquariumLogo from "@/components/AquariumLogo.astro";
+---
+
+<desktop-widgets class="desktop-widgets" aria-label="Bureaubladwidgets">
+	<div class="desktop-widget desktop-widget--aquarium">
+		<button class="widget-close" type="button" aria-label="Aquariumwidget sluiten" data-widget-close></button>
+		<AquariumLogo compact />
+	</div>
+</desktop-widgets>
+
+<script>
+	class DesktopWidgets extends HTMLElement {
+		connectedCallback() {
+			for (const widget of this.querySelectorAll<HTMLElement>(".desktop-widget")) {
+				widget.addEventListener("dragstart", (event) => event.preventDefault());
+				widget.querySelector<HTMLButtonElement>("[data-widget-close]")?.addEventListener("click", () => {
+					widget.hidden = true;
+				});
+				widget.addEventListener("pointerdown", (event) => {
+					widget.style.zIndex = "2";
+					if ((event.target as HTMLElement).closest("button")) return;
+
+					const workspace = widget.closest<HTMLElement>(".window-workspace");
+					if (!workspace) return;
+					const widgetRect = widget.getBoundingClientRect();
+					const workspaceRect = workspace.getBoundingClientRect();
+					const offsetX = event.clientX - widgetRect.left;
+					const offsetY = event.clientY - widgetRect.top;
+					const startX = event.clientX;
+					const startY = event.clientY;
+					let moved = false;
+
+					widget.setPointerCapture(event.pointerId);
+					const move = (moveEvent: PointerEvent) => {
+						if (!moved && Math.hypot(moveEvent.clientX - startX, moveEvent.clientY - startY) < 5) return;
+						if (!moved) {
+							moved = true;
+							widget.classList.add("is-dragging");
+							if (widget.parentElement !== workspace) {
+								workspace.append(widget);
+								widget.style.position = "absolute";
+								widget.style.width = `${widgetRect.width}px`;
+								widget.style.left = `${widgetRect.left - workspaceRect.left}px`;
+								widget.style.top = `${widgetRect.top - workspaceRect.top}px`;
+							}
+						}
+						const maxLeft = Math.max(0, workspace.clientWidth - widget.offsetWidth);
+						const maxTop = Math.max(0, workspace.clientHeight - widget.offsetHeight);
+						widget.style.left = `${Math.max(0, Math.min(maxLeft, moveEvent.clientX - workspaceRect.left - offsetX))}px`;
+						widget.style.top = `${Math.max(0, Math.min(maxTop, moveEvent.clientY - workspaceRect.top - offsetY))}px`;
+					};
+					widget.addEventListener("pointermove", move);
+					widget.addEventListener("pointerup", () => {
+						widget.removeEventListener("pointermove", move);
+						widget.classList.remove("is-dragging");
+						if (moved) widget.addEventListener("click", (clickEvent) => {
+							clickEvent.preventDefault();
+							clickEvent.stopPropagation();
+						}, { capture: true, once: true });
+					}, { once: true });
+				});
+			}
+		}
+	}
+
+	if (!customElements.get("desktop-widgets")) customElements.define("desktop-widgets", DesktopWidgets);
+</script>

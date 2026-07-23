@@ -1,0 +1,33 @@
+<nav class="desktop-icons" aria-label="Bureaubladpictogrammen">
+	<button class="desktop-icon desktop-icon--resonaut" type="button" data-desktop-path="https://resonaut.daandobber.nl" data-desktop-title="Resonaut">
+		<span class="desktop-icon__image" aria-hidden="true"><span>R</span></span>
+		<strong>Resonaut</strong>
+	</button>
+	<button class="desktop-icon desktop-icon--blog" type="button" data-desktop-path="/posts/" data-desktop-title="Blog">
+		<span class="desktop-icon__image" aria-hidden="true"><span>✎</span></span>
+		<strong>Blog</strong>
+	</button>
+	<button class="desktop-icon desktop-icon--blocks" type="button" data-desktop-path="/blokken4.html" data-desktop-title="Blokken">
+		<span class="desktop-icon__image" aria-hidden="true"><span>▦</span></span>
+		<strong>Blokken</strong>
+	</button>
+	<button class="desktop-icon desktop-icon--documents" type="button" data-desktop-path="aqua://documents" data-desktop-title="Mijn documenten">
+		<span class="desktop-icon__image" aria-hidden="true"><span>▰</span></span>
+		<strong>Mijn documenten</strong>
+	</button>
+</nav>
+
+<script>
+	for (const icon of document.querySelectorAll<HTMLButtonElement>("[data-desktop-path]")) {
+		const openIcon = () => {
+			document.dispatchEvent(new CustomEvent("aqua-open-window", {
+				detail: { path: icon.dataset.desktopPath, title: icon.dataset.desktopTitle },
+			}));
+		};
+		icon.addEventListener("click", () => {
+			for (const other of document.querySelectorAll(".desktop-icon.is-selected")) other.classList.remove("is-selected");
+			icon.classList.add("is-selected");
+			openIcon();
+		});
+	}
+</script>
