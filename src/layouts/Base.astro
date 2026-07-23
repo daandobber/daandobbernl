@@ -25,6 +25,10 @@ const {
 		class="bg-global-bg text-global-text mx-auto flex min-h-screen w-full max-w-none flex-col px-4 pt-4 pb-16 font-mono text-sm font-normal antialiased sm:px-8 lg:px-12"
 	>
 		<ThemeProvider />
+		{/* Inlined to avoid a flash of the full desktop chrome inside spawned iframe windows. */}
+		<script is:inline>
+			if (window.self !== window.top) document.documentElement.classList.add("embedded-page");
+		</script>
 		<SkipLink />
 
 		<div class="window-workspace">

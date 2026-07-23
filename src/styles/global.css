@@ -642,9 +642,15 @@ html.embedded-page body > footer,
 html.embedded-page .desktop-widgets,
 html.embedded-page .desktop-icons { display: none !important; }
 html.embedded-page .window-workspace { min-height: 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
-html.embedded-page #main { position: static !important; width: 100% !important; margin: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; transform: none !important; }
+html.embedded-page #main { position: static !important; width: 100% !important; margin: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; transform: none !important; backdrop-filter: none !important; }
 html.embedded-page #main > .aero-titlebar { display: none !important; }
 html.embedded-page .aero-window-content { min-height: 100vh; }
+
+/* Tailwind's preflight [hidden] rule lives in @layer base with !important, which
+   otherwise beats an unlayered !important override regardless of specificity. */
+@layer base {
+	html.embedded-page #main[hidden] { display: flex !important; }
+}
 
 @media (min-width: 640px) and (max-width: 1000px) {
 	.desktop-widgets { position: relative; inset: auto; width: 8rem; margin: 0 0 1rem auto; }
