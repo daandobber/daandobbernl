@@ -683,7 +683,7 @@ html.embedded-page body { max-width: none !important; padding: 0 !important; bac
 html.embedded-page #main-header,
 html.embedded-page body > footer,
 html.embedded-page .desktop-widgets,
-html.embedded-page .desktop-icons,
+html.embedded-page .desktop-icons { display: none !important; }
 html.embedded-page .window-workspace { min-height: 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
 html.embedded-page #main { position: static !important; width: 100% !important; margin: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; transform: none !important; backdrop-filter: none !important; }
 html.embedded-page #main > .aero-titlebar { display: none !important; }

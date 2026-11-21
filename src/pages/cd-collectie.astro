@@ -3,7 +3,9 @@ import cdCollectionData from "@/data/cd_collection.json";
 import PageLayout from "@/layouts/Base.astro";
 import type { Release, SiteMeta } from "@/types";
 
-const releases: Release[] = cdCollectionData?.releases ?? [];
+// newest first: the date the cd was added to the Discogs collection
+const addedTime = (release: Release) => Date.parse(release.date_added ?? "") || 0;
+const releases: Release[] = [...(cdCollectionData?.releases ?? [])].sort((a, b) => addedTime(b) - addedTime(a));
 const shelfSize = 6;
 const shelves = Array.from({ length: Math.ceil(releases.length / shelfSize) }, (_, index) =>
 	releases.slice(index * shelfSize, (index + 1) * shelfSize)
@@ -21,20 +23,17 @@ const meta: SiteMeta = {
 	<section class="collection-document" aria-labelledby="collection-title">
 		<h1 id="collection-title" class="sr-only">CD-collectie — {releases.length} cd's</h1>
 
-		<div class="cd-tools">
-			<button type="button" class="cd-tools__toggle" aria-expanded="false" aria-haspopup="true" title="Zoeken en sorteren">
-				<span aria-hidden="true">⌕</span>
-			</button>
-			<div class="cd-tools__panel" hidden>
-				<label class="cd-tools__search">
-					<span aria-hidden="true">⌕</span>
-					<input type="search" placeholder="Zoek op titel of artiest…" data-cd-search aria-label="Zoek in de cd-collectie" />
-				</label>
-				<p>Sorteren</p>
-				<button type="button" data-cd-sort="artist"><span aria-hidden="true">A→Z</span>Artiest</button>
-				<button type="button" data-cd-sort="added"><span aria-hidden="true">★</span>Toegevoegd</button>
-				<button type="button" data-cd-sort="shuffle"><span aria-hidden="true">⟲</span>Willekeurig</button>
+		<div class="cd-toolbar">
+			<div class="cd-sort" role="group" aria-label="Sorteren">
+				<span class="cd-sort__label">Sorteren</span>
+				<button type="button" data-cd-sort="added" aria-pressed="true">Laatst toegevoegd</button>
+				<button type="button" data-cd-sort="artist" aria-pressed="false">Artiest A→Z</button>
+				<button type="button" data-cd-sort="shuffle" aria-pressed="false">Willekeurig</button>
 			</div>
+			<label class="cd-search">
+				<span aria-hidden="true">⌕</span>
+				<input type="search" placeholder="Zoek op titel of artiest…" data-cd-search aria-label="Zoek in de cd-collectie" />
+			</label>
 		</div>
 
 		<div class="cd-library" data-cd-library>
@@ -93,33 +92,36 @@ const meta: SiteMeta = {
 			}
 		};
 
-		const redistribute = (orderedCases: HTMLElement[]) => {
-			const rows = Array.from(library.querySelectorAll<HTMLElement>(".cd-shelf__items"));
-			rows.forEach((row, rowIndex) => {
-				orderedCases.slice(rowIndex * 6, rowIndex * 6 + 6).forEach((album) => row.append(album));
-			});
-		};
-
-		const applyFilter = (query: string) => {
-			const needle = query.trim().toLowerCase();
+		// fill the shelves (6 per shelf) with the cds that match the search, in the current order;
+		// shelves that end up empty are hidden, so search results stand together
+		const searchInput = document.querySelector<HTMLInputElement>("[data-cd-search]");
+		const render = () => {
+			const needle = (searchInput?.value ?? "").trim().toLowerCase();
+			const visible: HTMLElement[] = [];
+			const hidden: HTMLElement[] = [];
 			for (const item of cases) {
 				const haystack = `${item.dataset.artist ?? ""} ${item.dataset.title ?? ""}`.toLowerCase();
-				item.hidden = needle.length > 0 && !haystack.includes(needle);
+				const match = !needle || haystack.includes(needle);
+				item.hidden = !match;
+				(match ? visible : hidden).push(item);
 			}
-			for (const shelf of shelves) {
-				const anyVisible = Array.from(shelf.querySelectorAll<HTMLElement>(".cd-case")).some((item) => !item.hidden);
-				shelf.hidden = !anyVisible;
-			}
+			const rows = Array.from(library.querySelectorAll<HTMLElement>(".cd-shelf__items"));
+			rows.forEach((row, rowIndex) => {
+				const onShelf = visible.slice(rowIndex * 6, rowIndex * 6 + 6);
+				row.append(...onShelf);
+				shelves[rowIndex]!.hidden = onShelf.length === 0;
+			});
+			rows.at(-1)?.append(...hidden);
 		};
 
-		shuffle(cases);
-		redistribute(cases);
-
-		const searchInput = document.querySelector<HTMLInputElement>("[data-cd-search]");
-		searchInput?.addEventListener("input", () => applyFilter(searchInput.value));
+		searchInput?.addEventListener("input", render);
+		render(); // the browser may have kept a search from before
 
 		for (const button of document.querySelectorAll<HTMLButtonElement>("[data-cd-sort]")) {
 			button.addEventListener("click", () => {
+				for (const other of document.querySelectorAll<HTMLButtonElement>("[data-cd-sort]")) {
+					other.setAttribute("aria-pressed", String(other === button));
+				}
 				if (button.dataset.cdSort === "artist") {
 					cases.sort((a, b) => (a.dataset.artist ?? "").localeCompare(b.dataset.artist ?? "", "nl", { sensitivity: "base" }));
 				} else if (button.dataset.cdSort === "added") {
@@ -129,90 +131,32 @@ const meta: SiteMeta = {
 				} else {
 					shuffle(cases);
 				}
-				redistribute(cases);
-				applyFilter(searchInput?.value ?? "");
+				render();
 			});
 		}
 
-		const toggle = document.querySelector<HTMLButtonElement>(".cd-tools__toggle");
-		const panel = document.querySelector<HTMLElement>(".cd-tools__panel");
-		if (toggle && panel) {
-			const setOpen = (open: boolean) => { panel.hidden = !open; toggle.setAttribute("aria-expanded", String(open)); };
-			toggle.addEventListener("click", () => setOpen(panel.hidden));
-			document.addEventListener("pointerdown", (event) => {
-				if (!toggle.contains(event.target as Node) && !panel.contains(event.target as Node)) setOpen(false);
-			});
-			document.addEventListener("keydown", (event) => { if (event.key === "Escape") setOpen(false); });
-		}
 	}
 </script>
 
 <style>
 	.collection-document { min-height: 100%; color: #123d59; }
-	.cd-tools { position: fixed; right: 1.5rem; bottom: 2.6rem; z-index: 40; }
-	.cd-tools__toggle {
-		position: relative;
-		display: grid;
-		width: 3.5rem;
-		height: 3.5rem;
-		place-items: center;
-		border: 1px solid rgb(255 255 255 / 75%);
-		border-radius: 50%;
-		background: radial-gradient(circle at 32% 26%, #fff, rgb(255 255 255 / 65%) 28%, rgb(146 216 250 / 78%) 56%, rgb(47 145 219 / 88%) 100%);
-		box-shadow:
-			inset 0 2px 2px rgb(255 255 255 / 95%),
-			inset 0 -8px 12px rgb(18 88 148 / 40%),
-			0 3px 6px rgb(20 70 120 / 30%),
-			0 12px 24px rgb(20 70 120 / 32%);
-		color: #123d59;
-		font-size: 1.3rem;
-		cursor: pointer;
-		animation: cd-tools-bob 4.5s ease-in-out infinite;
-		transition: transform .18s ease, box-shadow .18s ease;
-	}
-	.cd-tools__toggle::before {
-		content: "";
-		position: absolute;
-		top: 11%;
-		left: 16%;
-		width: 46%;
-		height: 34%;
-		border-radius: 50%;
-		background: linear-gradient(180deg, rgb(255 255 255 / 92%), rgb(255 255 255 / 0%));
-		pointer-events: none;
-	}
-	.cd-tools__toggle:hover { animation-play-state: paused; transform: scale(1.08); }
-	.cd-tools__toggle[aria-expanded="true"] {
-		animation-play-state: paused;
-		box-shadow:
-			inset 0 2px 2px rgb(255 255 255 / 95%),
-			inset 0 -8px 12px rgb(18 88 148 / 40%),
-			0 0 0 4px rgb(255 255 255 / 45%),
-			0 12px 24px rgb(20 70 120 / 32%);
-	}
-	@keyframes cd-tools-bob {
-		0%, 100% { transform: translateY(0); }
-		50% { transform: translateY(-.4rem); }
-	}
-	.cd-tools__panel { position: absolute; right: calc(100% + .8rem); bottom: 0; width: 14.5rem; padding: .55rem; border: 1px solid rgb(255 255 255 / 75%); border-radius: 1.2rem; background: linear-gradient(145deg, rgb(240 253 255 / 97%), rgb(186 224 246 / 95%), rgb(211 194 244 / 95%)); box-shadow: 0 20px 46px rgb(22 56 94 / 30%), inset 0 1px 0 #fff; backdrop-filter: blur(18px); }
-	.cd-tools__panel[hidden] { display: none; }
-	.cd-tools__search { display: flex; margin-bottom: .5rem; padding: .55rem .7rem; align-items: center; gap: .5rem; border: 1px solid rgb(255 255 255 / 60%); border-radius: .75rem; background: linear-gradient(180deg, rgb(255 255 255 / 55%), rgb(255 255 255 / 22%)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 65%); }
-	.cd-tools__search input { flex: 1; min-width: 0; border: 0 !important; background: transparent !important; box-shadow: none !important; color: #143c5a; font: inherit; outline: none; }
-	.cd-tools__search input::placeholder { color: rgb(20 65 96 / 55%); }
-	.cd-tools__search input::-webkit-search-cancel-button { display: none; }
-	.cd-tools__panel p { margin: .25rem .15rem .35rem; color: rgb(20 65 96 / 62%); font-size: .58rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
-	.cd-tools__panel button { display: flex; width: 100%; align-items: center; gap: .6rem; padding: .6rem .65rem; border: 0; border-radius: .7rem; background: transparent; color: #143c5a; font-weight: 750; text-align: left; cursor: pointer; transition: background .12s ease; }
-	.cd-tools__panel button:hover { background: linear-gradient(180deg, rgb(255 255 255 / 68%), rgb(255 255 255 / 32%)); }
-	.cd-tools__panel button span { font-size: .62rem; font-weight: 900; opacity: .7; }
-	:global([data-theme="dark"]) .cd-tools__toggle { color: #e8faff; background: radial-gradient(circle at 32% 26%, rgb(255 255 255 / 92%), rgb(180 232 255 / 55%) 26%, rgb(96 178 235 / 68%) 55%, rgb(62 55 150 / 88%) 100%); box-shadow: inset 0 2px 2px rgb(255 255 255 / 55%), inset 0 -8px 12px rgb(20 20 60 / 45%), 0 3px 6px rgb(0 0 0 / 30%), 0 12px 24px rgb(0 0 0 / 35%); }
-	:global([data-theme="dark"]) .cd-tools__panel { border-color: rgb(142 226 255 / 25%); background: linear-gradient(145deg, rgb(20 74 104 / 96%), rgb(52 45 118 / 96%), rgb(89 37 105 / 96%)); }
-	:global([data-theme="dark"]) .cd-tools__panel :is(p, button, input) { color: #e8faff; }
-	:global([data-theme="dark"]) .cd-tools__search { border-color: rgb(142 226 255 / 30%); background: linear-gradient(180deg, rgb(255 255 255 / 16%), rgb(255 255 255 / 6%)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 22%); }
-	:global([data-theme="dark"]) .cd-tools__search input::placeholder { color: rgb(226 248 255 / 62%); }
-	:global([data-theme="dark"]) .cd-tools__panel button:hover { background: rgb(255 255 255 / 11%); }
-	@media (prefers-reduced-motion: reduce) {
-		.cd-tools__toggle { animation: none; }
-	}
+	.cd-toolbar { display: flex; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .7rem; }
+	.cd-sort { display: flex; padding: .3rem; flex-wrap: wrap; align-items: center; gap: .25rem; border: 1px solid rgb(255 255 255 / 75%); border-radius: 999px; background: linear-gradient(180deg, rgb(255 255 255 / 70%), rgb(205 232 248 / 55%)); box-shadow: inset 0 1px 0 #fff, 0 6px 16px rgb(20 70 120 / 14%); }
+	.cd-sort__label { padding: 0 .55rem 0 .7rem; color: rgb(20 65 96 / 62%); font-size: .62rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+	.cd-sort button { padding: .45rem .9rem; border: 1px solid transparent; border-radius: 999px; background: transparent; color: #143c5a; font: inherit; font-size: .85rem; font-weight: 750; cursor: pointer; transition: background .12s ease; }
+	.cd-sort button:hover { background: rgb(255 255 255 / 60%); }
+	.cd-sort button[aria-pressed="true"] { border-color: rgb(255 255 255 / 80%); background: radial-gradient(circle at 30% 20%, #fff, rgb(146 216 250 / 85%) 60%, rgb(47 145 219 / 80%)); box-shadow: inset 0 1px 1px #fff, inset 0 -3px 6px rgb(18 88 148 / 25%), 0 2px 5px rgb(20 70 120 / 25%); color: #0d3550; }
+	.cd-search { display: flex; min-width: min(16rem, 100%); padding: .5rem .8rem; align-items: center; gap: .5rem; border: 1px solid rgb(255 255 255 / 75%); border-radius: 999px; background: linear-gradient(180deg, rgb(255 255 255 / 70%), rgb(255 255 255 / 35%)); box-shadow: inset 0 1px 0 #fff, 0 6px 16px rgb(20 70 120 / 14%); color: #143c5a; }
+	.cd-search input { flex: 1; min-width: 0; border: 0 !important; background: transparent !important; box-shadow: none !important; color: inherit; font: inherit; outline: none; }
+	.cd-search input::placeholder { color: rgb(20 65 96 / 55%); }
+	.cd-search input::-webkit-search-cancel-button { display: none; }
+	:global([data-theme="dark"]) .cd-sort,
+	:global([data-theme="dark"]) .cd-search { border-color: rgb(142 226 255 / 28%); background: linear-gradient(180deg, rgb(255 255 255 / 14%), rgb(255 255 255 / 5%)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 18%), 0 6px 16px rgb(0 0 0 / 25%); color: #e8faff; }
+	:global([data-theme="dark"]) .cd-sort__label { color: rgb(226 248 255 / 62%); }
+	:global([data-theme="dark"]) .cd-sort button { color: #e8faff; }
+	:global([data-theme="dark"]) .cd-sort button:hover { background: rgb(255 255 255 / 11%); }
+	:global([data-theme="dark"]) .cd-sort button[aria-pressed="true"] { border-color: rgb(142 226 255 / 40%); background: radial-gradient(circle at 30% 20%, rgb(180 232 255 / 70%), rgb(96 178 235 / 60%) 55%, rgb(62 55 150 / 85%)); color: #fff; }
+	:global([data-theme="dark"]) .cd-search input::placeholder { color: rgb(226 248 255 / 62%); }
 	.cd-library {
 		position: relative;
 		display: grid;
