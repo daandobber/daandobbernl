@@ -12,12 +12,12 @@ import { menuLinks } from "@/site.config";
 		<div class="start-submenu">
 			<button type="button" class="start-submenu__trigger" aria-haspopup="true" aria-expanded="false"><span aria-hidden="true">◉</span><span>Collecties</span><span class="start-submenu__arrow" aria-hidden="true">›</span></button>
 			<div class="start-submenu__flyout">
-				<button type="button" data-window-path="/cd-collectie/" data-window-title="CD-collectie" data-clippy-key="cd-collectie"><span aria-hidden="true">💿</span>CD-collectie</button>
+				<button type="button" data-window-path="/cd-collectie/" data-window-title="CD-collectie"><span aria-hidden="true">💿</span>CD-collectie</button>
 				<button type="button" data-window-path="/bordspellen/" data-window-title="Bordspellen"><span aria-hidden="true">🎲</span>Bordspellen</button>
 			</div>
 		</div>
-		<button type="button" data-app-toggle="videospeler" data-clippy-key="videospeler"><span aria-hidden="true">▶</span>Videospeler</button>
-		<button type="button" data-app-toggle="explorer" data-clippy-key="verkenner"><span aria-hidden="true">▣</span>Verkenner</button>
+		<button type="button" data-app-toggle="videospeler"><span aria-hidden="true">▶</span>Videospeler</button>
+		<button type="button" data-app-toggle="explorer"><span aria-hidden="true">▣</span>Verkenner</button>
 	</div>
 </window-menu>
 
@@ -60,19 +60,11 @@ import { menuLinks } from "@/site.config";
 			for (const button of this.querySelectorAll<HTMLButtonElement>("[data-window-path]")) button.addEventListener("click", () => {
 				setOpen(false);
 				this.openWindow(button.dataset.windowPath ?? "/", button.dataset.windowTitle ?? "Pagina");
-				if (button.dataset.clippyKey) {
-					document.dispatchEvent(new CustomEvent("aqua-app-opened", { detail: { key: button.dataset.clippyKey } }));
-				}
 			});
 			for (const button of this.querySelectorAll<HTMLButtonElement>("[data-app-toggle]")) button.addEventListener("click", () => {
 				setOpen(false);
 				const app = document.querySelector<HTMLElement>(`[data-app="${button.dataset.appToggle}"]`);
-				if (app) {
-					app.hidden = !app.hidden;
-					if (!app.hidden && button.dataset.clippyKey) {
-						document.dispatchEvent(new CustomEvent("aqua-app-opened", { detail: { key: button.dataset.clippyKey } }));
-					}
-				}
+				if (app) app.hidden = !app.hidden;
 			});
 			document.addEventListener("aqua-open-window", ((event: CustomEvent<{ path?: string; title?: string }>) => {
 				this.openWindow(event.detail.path ?? "/", event.detail.title ?? "Pagina");
@@ -219,7 +211,6 @@ import { menuLinks } from "@/site.config";
 			starBtn?.addEventListener("click", () => {
 				const isFavorite = starBtn.classList.toggle("is-favorite");
 				starBtn.setAttribute("aria-label", isFavorite ? "Verwijderen uit favorieten" : "Toevoegen aan favorieten");
-				if (isFavorite) document.dispatchEvent(new CustomEvent("aqua-app-opened", { detail: { key: "blog-favoriet" } }));
 			});
 		}
 		makeDraggable(windowEl: HTMLElement, handle: HTMLElement) {

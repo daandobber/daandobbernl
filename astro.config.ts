@@ -108,14 +108,6 @@ export default defineConfig({
 			PUBLIC_LASTFM_API_KEY: envField.string({ context: "client", access: "public", optional: true }),
 			PUBLIC_LASTFM_USERNAME: envField.string({ context: "client", access: "public", optional: true }),
 			LASTFM_SHARED_SECRET: envField.string({ context: "server", access: "secret", optional: true }),
-			// Used by the "MSN" contact widget: a dedicated, low-privilege Matrix bot account
-			// creates a private room per visitor and relays their chat messages. The token is
-			// necessarily shipped to the client bundle since the widget talks to the homeserver
-			// directly with no backend of its own — that's why this account should have no
-			// permissions beyond messaging, so a leaked token is cheap to rotate.
-			PUBLIC_MATRIX_HOMESERVER: envField.string({ context: "client", access: "public", optional: true }),
-			PUBLIC_MATRIX_BOT_TOKEN: envField.string({ context: "client", access: "public", optional: true }),
-			PUBLIC_MATRIX_OWNER_ID: envField.string({ context: "client", access: "public", optional: true }),
 		},
 	},
 });
