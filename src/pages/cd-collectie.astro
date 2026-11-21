@@ -32,6 +32,7 @@ const meta: SiteMeta = {
 				</label>
 				<p>Sorteren</p>
 				<button type="button" data-cd-sort="artist"><span aria-hidden="true">A→Z</span>Artiest</button>
+				<button type="button" data-cd-sort="added"><span aria-hidden="true">★</span>Toegevoegd</button>
 				<button type="button" data-cd-sort="shuffle"><span aria-hidden="true">⟲</span>Willekeurig</button>
 			</div>
 		</div>
@@ -54,6 +55,7 @@ const meta: SiteMeta = {
 									title={`${artist} — ${title}`}
 									data-artist={artist}
 									data-title={title}
+									data-added={release.date_added ?? ""}
 								>
 									<span class="cd-case__shell">
 										<span class="cd-case__hinge" aria-hidden="true"></span>
@@ -120,6 +122,10 @@ const meta: SiteMeta = {
 			button.addEventListener("click", () => {
 				if (button.dataset.cdSort === "artist") {
 					cases.sort((a, b) => (a.dataset.artist ?? "").localeCompare(b.dataset.artist ?? "", "nl", { sensitivity: "base" }));
+				} else if (button.dataset.cdSort === "added") {
+					// newest first: the date the cd was added to the Discogs collection
+					const time = (item: HTMLElement) => Date.parse(item.dataset.added ?? "") || 0;
+					cases.sort((a, b) => time(b) - time(a));
 				} else {
 					shuffle(cases);
 				}

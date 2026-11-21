@@ -501,7 +501,7 @@
         ],
         "artists": [
           {
-            "name": "Boudewijn De Groot",
+            "name": "Boudewijn de Groot",
             "anv": "",
             "join": "",
             "role": "",
@@ -1309,7 +1309,71 @@
         ],
         "styles": [
           "Modern Classical",
-          "Minimal"
+          "Minimal",
+          "Celtic"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
+      "id": 3429788,
+      "instance_id": 2197663703,
+      "date_added": "2026-10-25T03:02:52-07:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 3429788,
+        "master_id": 4309620,
+        "master_url": "https://api.discogs.com/masters/4309620",
+        "resource_url": "https://api.discogs.com/releases/3429788",
+        "thumb": "https://i.discogs.com/CNvE3T1uP2B0r46VCVjhwPoM0Z5-5wSz9brEO9smgcg/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM0Mjk3/ODgtMTMzNzYyNzQ4/MS0zMTM4LmpwZWc.jpeg",
+        "cover_image": "https://i.discogs.com/v9SZSj_9zi9qiLUwA1t9X81ABk-IUKlaNMJQEztlXn8/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM0Mjk3/ODgtMTMzNzYyNzQ4/MS0zMTM4LmpwZWc.jpeg",
+        "title": "Street Halo / Kindred",
+        "year": 2012,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Compilation"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Beat Records",
+            "catno": "BRC-320",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 4782,
+            "resource_url": "https://api.discogs.com/labels/4782"
+          },
+          {
+            "name": "Hyperdub",
+            "catno": "BRC-320",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 25386,
+            "resource_url": "https://api.discogs.com/labels/25386"
+          }
+        ],
+        "artists": [
+          {
+            "name": "Burial",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 306157,
+            "resource_url": "https://api.discogs.com/artists/306157"
+          }
+        ],
+        "genres": [
+          "Electronic"
+        ],
+        "styles": [
+          "House",
+          "Bass Music",
+          "Dubstep"
         ]
       },
       "folder_id": 1
@@ -1705,6 +1769,61 @@
       "folder_id": 1
     },
     {
+      "id": 26595992,
+      "instance_id": 2197663621,
+      "date_added": "2026-10-25T03:02:35-07:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 26595992,
+        "master_id": 3037874,
+        "master_url": "https://api.discogs.com/masters/3037874",
+        "resource_url": "https://api.discogs.com/releases/26595992",
+        "thumb": "https://i.discogs.com/dEvkh-XbaNGPNlGFxlocFkPAd4Zy_Q_cceD40aBZGIs/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI2NTk1/OTkyLTE2ODMzOTg2/MDAtMTM2NC5qcGVn.jpeg",
+        "cover_image": "https://i.discogs.com/Hk8EvPmGGXiWExC1tx1qAk4425AxEz954DHrkuXEsHg/rs:fit/g:sm/q:90/h:537/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI2NTk1/OTkyLTE2ODMzOTg2/MDAtMTM2NC5qcGVn.jpeg",
+        "title": "Imagine This Is A High Dimensional Space Of All Possibilities",
+        "year": 2023,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Album"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Border Community",
+            "catno": "56BCCD",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 15646,
+            "resource_url": "https://api.discogs.com/labels/15646"
+          }
+        ],
+        "artists": [
+          {
+            "name": "James Holden",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 4214,
+            "resource_url": "https://api.discogs.com/artists/4214"
+          }
+        ],
+        "genres": [
+          "Electronic"
+        ],
+        "styles": [
+          "Experimental",
+          "IDM",
+          "New Age"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
       "id": 48123,
       "instance_id": 1979847384,
       "date_added": "2025-03-30T01:26:38-07:00",
@@ -1814,63 +1933,6 @@
       "folder_id": 1
     },
     {
-      "id": 16045613,
-      "instance_id": 1985623782,
-      "date_added": "2025-04-05T00:23:37-07:00",
-      "rating": 0,
-      "basic_information": {
-        "id": 16045613,
-        "master_id": 14468,
-        "master_url": "https://api.discogs.com/masters/14468",
-        "resource_url": "https://api.discogs.com/releases/16045613",
-        "thumb": "https://i.discogs.com/GyTPZBnE8Fn6m7LIJJ-9v5H2606PX6AYl4Bb8E8avsY/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2MDQ1/NjEzLTE3NTU2NTQ0/OTItMjU0OS5qcGVn.jpeg",
-        "cover_image": "https://i.discogs.com/nxuCgS_P-PgtoDuQqDWWmZ0mT9Y1Lb730UpH6R4o7X8/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2MDQ1/NjEzLTE3NTU2NTQ0/OTItMjU0OS5qcGVn.jpeg",
-        "title": "Music From Big Pink",
-        "year": 2000,
-        "formats": [
-          {
-            "name": "CD",
-            "qty": "1",
-            "text": "Bonus Tracks",
-            "descriptions": [
-              "Album",
-              "Remastered"
-            ]
-          }
-        ],
-        "labels": [
-          {
-            "name": "Capitol Records",
-            "catno": "72435-25390-2-4",
-            "entity_type": "1",
-            "entity_type_name": "Label",
-            "id": 654,
-            "resource_url": "https://api.discogs.com/labels/654"
-          }
-        ],
-        "artists": [
-          {
-            "name": "The Band",
-            "anv": "",
-            "join": "",
-            "role": "",
-            "tracks": "",
-            "id": 254199,
-            "resource_url": "https://api.discogs.com/artists/254199"
-          }
-        ],
-        "genres": [
-          "Rock"
-        ],
-        "styles": [
-          "Folk Rock",
-          "Acoustic",
-          "Blues Rock"
-        ]
-      },
-      "folder_id": 1
-    },
-    {
       "id": 1604807,
       "instance_id": 2148511097,
       "date_added": "2026-05-24T09:13:21-07:00",
@@ -1883,7 +1945,7 @@
         "thumb": "https://i.discogs.com/Qce57neDSe-pDlh5h4ZbZf_OKLvmVt-7KiaQNMiaLuM/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2MDQ4/MDctMTI1MDIxNTI0/My5qcGVn.jpeg",
         "cover_image": "https://i.discogs.com/QGS7WipNtYUmyqqIdch6MKYFnSEZLUO5M5M3VMDIWD4/rs:fit/g:sm/q:90/h:413/w:412/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2MDQ4/MDctMTI1MDIxNTI0/My5qcGVn.jpeg",
         "title": "Music From Big Pink",
-        "year": 2000,
+        "year": 0,
         "formats": [
           {
             "name": "CD",
@@ -1978,60 +2040,6 @@
         "styles": [
           "Psychedelic Rock",
           "Prog Rock"
-        ]
-      },
-      "folder_id": 1
-    },
-    {
-      "id": 1512332,
-      "instance_id": 2043418195,
-      "date_added": "2025-07-21T12:15:05-07:00",
-      "rating": 0,
-      "basic_information": {
-        "id": 1512332,
-        "master_id": 3228,
-        "master_url": "https://api.discogs.com/masters/3228",
-        "resource_url": "https://api.discogs.com/releases/1512332",
-        "thumb": "https://i.discogs.com/sS8OMdLmnPg5PUuzS0qjSHkB-02mRUtztZSt1YaHLIw/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE1MTIz/MzItMTIyNTE3ODA0/OS5qcGVn.jpeg",
-        "cover_image": "https://i.discogs.com/G5skL4ukDKnuE89zJh-1N17m5JjZAhNIFxvtsOPrTkk/rs:fit/g:sm/q:90/h:596/w:599/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE1MTIz/MzItMTIyNTE3ODA0/OS5qcGVn.jpeg",
-        "title": "Radio-Activity",
-        "year": 1995,
-        "formats": [
-          {
-            "name": "CD",
-            "qty": "1",
-            "descriptions": [
-              "Album",
-              "Reissue"
-            ]
-          }
-        ],
-        "labels": [
-          {
-            "name": "Capitol Records",
-            "catno": "CDP 0777 7 46474 2 7",
-            "entity_type": "1",
-            "entity_type_name": "Label",
-            "id": 654,
-            "resource_url": "https://api.discogs.com/labels/654"
-          }
-        ],
-        "artists": [
-          {
-            "name": "Kraftwerk",
-            "anv": "",
-            "join": "",
-            "role": "",
-            "tracks": "",
-            "id": 4654,
-            "resource_url": "https://api.discogs.com/artists/4654"
-          }
-        ],
-        "genres": [
-          "Electronic"
-        ],
-        "styles": [
-          "Experimental"
         ]
       },
       "folder_id": 1
@@ -2925,6 +2933,71 @@
         "styles": [
           "Pop Rock",
           "Ballad"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
+      "id": 2328768,
+      "instance_id": 2167041568,
+      "date_added": "2026-07-24T14:24:22-07:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 2328768,
+        "master_id": 240989,
+        "master_url": "https://api.discogs.com/masters/240989",
+        "resource_url": "https://api.discogs.com/releases/2328768",
+        "thumb": "https://i.discogs.com/JrXJVIr3PlSCPnN0iI34gW7ON5mOVoM9gM2fhJzaaoI/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTIzMjg3/NjgtMTI3NzI3ODQ0/OS5qcGVn.jpeg",
+        "cover_image": "https://i.discogs.com/I6YWq22JjXazE4qCPZ05rRtWR2exsftzoimmpXKLBhM/rs:fit/g:sm/q:90/h:446/w:450/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTIzMjg3/NjgtMTI3NzI3ODQ0/OS5qcGVn.jpeg",
+        "title": "Swim / Mixtape",
+        "year": 2010,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Album"
+            ]
+          },
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Compilation",
+              "Mixed",
+              "Limited Edition"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "City Slang",
+            "catno": "SLANG733419",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 2441,
+            "resource_url": "https://api.discogs.com/labels/2441"
+          }
+        ],
+        "artists": [
+          {
+            "name": "Caribou",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 275841,
+            "resource_url": "https://api.discogs.com/artists/275841"
+          }
+        ],
+        "genres": [
+          "Electronic",
+          "Folk, World, & Country"
+        ],
+        "styles": [
+          "Electro",
+          "Folk",
+          "Experimental"
         ]
       },
       "folder_id": 1
@@ -3845,6 +3918,62 @@
       "folder_id": 1
     },
     {
+      "id": 3069745,
+      "instance_id": 2206738720,
+      "date_added": "2026-11-21T02:24:35-08:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 3069745,
+        "master_id": 246349,
+        "master_url": "https://api.discogs.com/masters/246349",
+        "resource_url": "https://api.discogs.com/releases/3069745",
+        "thumb": "https://i.discogs.com/vPFXz-5a8tv5Rj00Dp2cYUODsPegLTaTEk8xi5YKA_8/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTMwNjk3/NDUtMTMxNDI4NTM2/MS5qcGVn.jpeg",
+        "cover_image": "https://i.discogs.com/4smtj1eUuuGt1qwoJSTNS1plQiD8hTqnX8spkyhv1Dk/rs:fit/g:sm/q:90/h:594/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTMwNjk3/NDUtMTMxNDI4NTM2/MS5qcGVn.jpeg",
+        "title": "Grey Oceans",
+        "year": 2010,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "text": "Digipak",
+            "descriptions": [
+              "Album"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Cycle (2)",
+            "catno": "cycle033cd",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 53711,
+            "resource_url": "https://api.discogs.com/labels/53711"
+          }
+        ],
+        "artists": [
+          {
+            "name": "CocoRosie",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 204103,
+            "resource_url": "https://api.discogs.com/artists/204103"
+          }
+        ],
+        "genres": [
+          "Rock",
+          "Folk, World, & Country"
+        ],
+        "styles": [
+          "Art Rock",
+          "Folk"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
       "id": 2252677,
       "instance_id": 2152026435,
       "date_added": "2026-06-04T21:33:03-07:00",
@@ -4024,6 +4153,61 @@
       "folder_id": 1
     },
     {
+      "id": 11083427,
+      "instance_id": 2206738347,
+      "date_added": "2026-11-21T02:23:02-08:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 11083427,
+        "master_id": 20090,
+        "master_url": "https://api.discogs.com/masters/20090",
+        "resource_url": "https://api.discogs.com/releases/11083427",
+        "thumb": "https://i.discogs.com/Xv6Y4J4BbOuvu_GNmZVJwQwXDV1jwWTIGODZLEeLdBk/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTExMDgz/NDI3LTE2MjkzNzU0/ODEtNzg1MS5qcGVn.jpeg",
+        "cover_image": "https://i.discogs.com/Dg37Ndy9LjSkTVRacqi8Qzyjbk0CR_D2oj-jzQr7CWU/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTExMDgz/NDI3LTE2MjkzNzU0/ODEtNzg1MS5qcGVn.jpeg",
+        "title": "Licensed To Ill",
+        "year": 2015,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Album",
+              "Reissue",
+              "Remastered",
+              "Repress"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Def Jam Recordings",
+            "catno": "527 351-2",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 4241,
+            "resource_url": "https://api.discogs.com/labels/4241"
+          }
+        ],
+        "artists": [
+          {
+            "name": "Beastie Boys",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 10783,
+            "resource_url": "https://api.discogs.com/artists/10783"
+          }
+        ],
+        "genres": [
+          "Hip Hop",
+          "Rock"
+        ],
+        "styles": []
+      },
+      "folder_id": 1
+    },
+    {
       "id": 4080242,
       "instance_id": 2009215626,
       "date_added": "2025-04-26T08:36:48-07:00",
@@ -4150,6 +4334,64 @@
           "Leftfield",
           "Techno",
           "Electro"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
+      "id": 7473236,
+      "instance_id": 2206738646,
+      "date_added": "2026-11-21T02:24:15-08:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 7473236,
+        "master_id": 9844,
+        "master_url": "https://api.discogs.com/masters/9844",
+        "resource_url": "https://api.discogs.com/releases/7473236",
+        "thumb": "https://i.discogs.com/E_mRNfeeAFE0sVfIhRCzqjGjR4-wKr2KieegZOBK-X4/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTc0NzMy/MzYtMTQ2NDA1MjE5/MC01MTYxLmpwZWc.jpeg",
+        "cover_image": "https://i.discogs.com/i1ieK88kKG35Hd8xOGQNII4Y6b1qbDY0y3cFcR6Qq80/rs:fit/g:sm/q:90/h:500/w:500/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTc0NzMy/MzYtMTQ2NDA1MjE5/MC01MTYxLmpwZWc.jpeg",
+        "title": "Dirty",
+        "year": 1992,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "text": "Columbia House",
+            "descriptions": [
+              "Album",
+              "Club Edition"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "DGC",
+            "catno": "DGCD-24485",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 86487,
+            "resource_url": "https://api.discogs.com/labels/86487"
+          }
+        ],
+        "artists": [
+          {
+            "name": "Sonic Youth",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 17199,
+            "resource_url": "https://api.discogs.com/artists/17199"
+          }
+        ],
+        "genres": [
+          "Rock"
+        ],
+        "styles": [
+          "Alternative Rock",
+          "Indie Rock",
+          "Experimental",
+          "Noise Rock"
         ]
       },
       "folder_id": 1
@@ -4437,6 +4679,60 @@
           "Experimental",
           "Ambient",
           "Synth-pop"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
+      "id": 16833222,
+      "instance_id": 2206738269,
+      "date_added": "2026-11-21T02:22:44-08:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 16833222,
+        "master_id": 76279,
+        "master_url": "https://api.discogs.com/masters/76279",
+        "resource_url": "https://api.discogs.com/releases/16833222",
+        "thumb": "https://i.discogs.com/U2_Kx9ajfdpFZcx25j8wnymcB9zWjzlnZQkL-yR_9tw/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2ODMz/MjIyLTE2MTAxMTEy/ODctNjY1NC5qcGVn.jpeg",
+        "cover_image": "https://i.discogs.com/g-An32s_FDe-9ZnxrvizGyyF4Uw8jOArCY_6eH6cLaE/rs:fit/g:sm/q:90/h:505/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2ODMz/MjIyLTE2MTAxMTEy/ODctNjY1NC5qcGVn.jpeg",
+        "title": "Whatever People Say I Am, That's What I'm Not",
+        "year": 0,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Album",
+              "Unofficial Release"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Domino",
+            "catno": "PG-0545",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 26465,
+            "resource_url": "https://api.discogs.com/labels/26465"
+          }
+        ],
+        "artists": [
+          {
+            "name": "Arctic Monkeys",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 391170,
+            "resource_url": "https://api.discogs.com/artists/391170"
+          }
+        ],
+        "genres": [
+          "Rock"
+        ],
+        "styles": [
+          "Indie Rock"
         ]
       },
       "folder_id": 1
@@ -4771,7 +5067,12 @@
         ],
         "styles": [
           "Experimental",
-          "Punk"
+          "Punk",
+          "Synth-pop",
+          "Synthpunk",
+          "Industrial",
+          "IDM",
+          "Post-Punk"
         ]
       },
       "folder_id": 1
@@ -6570,8 +6871,8 @@
         "master_id": 14918,
         "master_url": "https://api.discogs.com/masters/14918",
         "resource_url": "https://api.discogs.com/releases/3910962",
-        "thumb": "https://i.discogs.com/8PYIOgF97Ss2QQMcnylb_UPEWPzZ1djaCgrhQcWMcjw/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM5MTA5/NjItMTM0ODk0MTYx/OS05MTg3LmpwZWc.jpeg",
-        "cover_image": "https://i.discogs.com/Vebk5w_J7qmuz0e5P1zP2rLIx5su1f_-7clSmJ_fT7M/rs:fit/g:sm/q:90/h:595/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM5MTA5/NjItMTM0ODk0MTYx/OS05MTg3LmpwZWc.jpeg",
+        "thumb": "https://i.discogs.com/GmmnkGgLnqLYoIDUJaEl8tLmj2Gh9c3hqTyO9RTXFAw/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM5MTA5/NjItMTc4ODM1MzUy/MS01OTQ4LmpwZWc.jpeg",
+        "cover_image": "https://i.discogs.com/N0spBKDExw2bDJNcmeUooG2BrikEXmgliKktQ8vk3tk/rs:fit/g:sm/q:90/h:582/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM5MTA5/NjItMTc4ODM1MzUy/MS01OTQ4LmpwZWc.jpeg",
         "title": "Combat Rock",
         "year": 0,
         "formats": [
@@ -6952,12 +7253,15 @@
           }
         ],
         "genres": [
-          "Electronic",
-          "Funk / Soul"
+          "Jazz",
+          "Funk / Soul",
+          "Pop"
         ],
         "styles": [
-          "Downtempo",
-          "Soul"
+          "Soul",
+          "Vocal",
+          "Soul-Jazz",
+          "Smooth Jazz"
         ]
       },
       "folder_id": 1
@@ -7318,6 +7622,69 @@
       "folder_id": 1
     },
     {
+      "id": 640680,
+      "instance_id": 2167041269,
+      "date_added": "2026-07-24T14:23:23-07:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 640680,
+        "master_id": 56767,
+        "master_url": "https://api.discogs.com/masters/56767",
+        "resource_url": "https://api.discogs.com/releases/640680",
+        "thumb": "https://i.discogs.com/zuNNFAShJHfvlKw7GDHA25bqoH2hl0QEVPXTORX9ykQ/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY0MDY4/MC0xMjcyNTczNTM3/LmpwZWc.jpeg",
+        "cover_image": "https://i.discogs.com/GW3bQJWtQi3nzql8AhoeJkD-vIm2VtspQfkzUkPM5Fk/rs:fit/g:sm/q:90/h:596/w:597/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY0MDY4/MC0xMjcyNTczNTM3/LmpwZWc.jpeg",
+        "title": "Dagen Van Gras, Dagen Van Stro",
+        "year": 2005,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Album"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Excelsior Recordings",
+            "catno": "excel96091",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 6659,
+            "resource_url": "https://api.discogs.com/labels/6659"
+          },
+          {
+            "name": "Excelsior Recordings",
+            "catno": "EXCEL96091",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 6659,
+            "resource_url": "https://api.discogs.com/labels/6659"
+          }
+        ],
+        "artists": [
+          {
+            "name": "Spinvis",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 43274,
+            "resource_url": "https://api.discogs.com/artists/43274"
+          }
+        ],
+        "genres": [
+          "Electronic",
+          "Jazz",
+          "Rock"
+        ],
+        "styles": [
+          "Experimental"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
       "id": 539376,
       "instance_id": 2148578100,
       "date_added": "2026-05-24T12:22:48-07:00",
@@ -7453,7 +7820,8 @@
             "name": "CD",
             "qty": "1",
             "descriptions": [
-              "Compilation"
+              "Compilation",
+              "Unofficial Release"
             ]
           }
         ],
@@ -7495,6 +7863,78 @@
           "Soft Rock",
           "Country",
           "Vocal"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
+      "id": 785865,
+      "instance_id": 2158250218,
+      "date_added": "2026-06-25T03:17:48-07:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 785865,
+        "master_id": 95659,
+        "master_url": "https://api.discogs.com/masters/95659",
+        "resource_url": "https://api.discogs.com/releases/785865",
+        "thumb": "https://i.discogs.com/QCwULrHkjjl4iCyA7Ddwr1vCivvJqzY4BbeaWJzmqHg/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTc4NTg2/NS0xMTY5MjE1Mjg4/LmpwZWc.jpeg",
+        "cover_image": "https://i.discogs.com/VH-FCvup32tFQq5cwi0sLb9IGBbxK2nemuNHv_UDYSs/rs:fit/g:sm/q:90/h:596/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTc4NTg2/NS0xMTY5MjE1Mjg4/LmpwZWc.jpeg",
+        "title": "Costello Music",
+        "year": 2006,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Album",
+              "Special Edition",
+              "Stereo"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Fallout Recordings",
+            "catno": "1707193",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 65840,
+            "resource_url": "https://api.discogs.com/labels/65840"
+          },
+          {
+            "name": "Drop The Gun Recordings",
+            "catno": "1707193",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 90213,
+            "resource_url": "https://api.discogs.com/labels/90213"
+          },
+          {
+            "name": "Island Records Group",
+            "catno": "1707 193",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 48794,
+            "resource_url": "https://api.discogs.com/labels/48794"
+          }
+        ],
+        "artists": [
+          {
+            "name": "The Fratellis",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 472288,
+            "resource_url": "https://api.discogs.com/artists/472288"
+          }
+        ],
+        "genres": [
+          "Rock"
+        ],
+        "styles": [
+          "Pop Rock",
+          "Indie Rock"
         ]
       },
       "folder_id": 1
@@ -8318,6 +8758,61 @@
       "folder_id": 1
     },
     {
+      "id": 14310875,
+      "instance_id": 2158250132,
+      "date_added": "2026-06-25T03:17:13-07:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 14310875,
+        "master_id": 35266,
+        "master_url": "https://api.discogs.com/masters/35266",
+        "resource_url": "https://api.discogs.com/releases/14310875",
+        "thumb": "https://i.discogs.com/hOS9KgU3P1TXEmwtqVeZOmnXlehERonxK7sdx6b4LSY/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE0MzEw/ODc1LTE2NjM0OTc5/MzItNzkzNC5qcGVn.jpeg",
+        "cover_image": "https://i.discogs.com/sRM_9zeTjvgPm4e2ys15hLyDg6CNSHAUT4dJ2E4aHw0/rs:fit/g:sm/q:90/h:592/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE0MzEw/ODc1LTE2NjM0OTc5/MzItNzkzNC5qcGVn.jpeg",
+        "title": "Weezer",
+        "year": 1994,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Album"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Geffen Records",
+            "catno": "GED 24629",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 821,
+            "resource_url": "https://api.discogs.com/labels/821"
+          }
+        ],
+        "artists": [
+          {
+            "name": "Weezer",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 105730,
+            "resource_url": "https://api.discogs.com/artists/105730"
+          }
+        ],
+        "genres": [
+          "Rock"
+        ],
+        "styles": [
+          "Alternative Rock",
+          "Grunge",
+          "Indie Rock"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
       "id": 7381157,
       "instance_id": 2043418754,
       "date_added": "2025-07-21T12:16:56-07:00",
@@ -8327,8 +8822,8 @@
         "master_id": 801496,
         "master_url": "https://api.discogs.com/masters/801496",
         "resource_url": "https://api.discogs.com/releases/7381157",
-        "thumb": "https://i.discogs.com/w7xg1fYD6iRVdZMt2gBVKBSjUEQa_tXtYPeTb4Lt-FA/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTczODEx/NTctMTU5ODc2OTAz/OC00OTgyLmpwZWc.jpeg",
-        "cover_image": "https://i.discogs.com/sFpwNd82E9aUjqGev_Tp8aYBYNpOisYVsYn2_6FEs5U/rs:fit/g:sm/q:90/h:536/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTczODEx/NTctMTU5ODc2OTAz/OC00OTgyLmpwZWc.jpeg",
+        "thumb": "https://i.discogs.com/u_OkK6pp0sjh2nkPLr6y0XmIFj6ejpCoLP1pkpqKHWI/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTczODEx/NTctMTYyMDc4NTY1/NC04ODU4LmpwZWc.jpeg",
+        "cover_image": "https://i.discogs.com/wcAJEWn0WNO8NLriySSDsylOUfYdYNU1m6pTDPawZxM/rs:fit/g:sm/q:90/h:534/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTczODEx/NTctMTYyMDc4NTY1/NC04ODU4LmpwZWc.jpeg",
         "title": "Minecraft Volume Alpha",
         "year": 2015,
         "formats": [
@@ -8609,7 +9104,7 @@
             "name": "CD",
             "qty": "1",
             "descriptions": [
-              "Album",
+              "Compilation",
               "Deluxe Edition",
               "Reissue",
               "Remastered"
@@ -8744,7 +9239,7 @@
         ],
         "artists": [
           {
-            "name": "Boudewijn De Groot",
+            "name": "Boudewijn de Groot",
             "anv": "",
             "join": "",
             "role": "",
@@ -9454,11 +9949,12 @@
         "thumb": "https://i.discogs.com/14QlOXOiCHqdq3qF8MqTx7kMDYyL8y8D0R52vBamF9U/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEwMTQy/MDUyLTE0OTIzNjEz/OTEtOTY0NS5qcGVn.jpeg",
         "cover_image": "https://i.discogs.com/MSQq-a597T0uYwHuBzXshFd5sHQmJrYMU--XBCtL2gg/rs:fit/g:sm/q:90/h:600/w:592/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEwMTQy/MDUyLTE0OTIzNjEz/OTEtOTY0NS5qcGVn.jpeg",
         "title": "R",
-        "year": 2000,
+        "year": 0,
         "formats": [
           {
             "name": "CD",
             "qty": "1",
+            "text": "kdg",
             "descriptions": [
               "Album",
               "Reissue"
@@ -10412,6 +10908,7 @@
           {
             "name": "CD",
             "qty": "2",
+            "text": "CD Text",
             "descriptions": [
               "Album",
               "Deluxe Edition",
@@ -10504,6 +11001,72 @@
         "styles": [
           "Downtempo",
           "Ambient"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
+      "id": 38586972,
+      "instance_id": 2206738502,
+      "date_added": "2026-11-21T02:23:40-08:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 38586972,
+        "master_id": 33450,
+        "master_url": "https://api.discogs.com/masters/33450",
+        "resource_url": "https://api.discogs.com/releases/38586972",
+        "thumb": "https://i.discogs.com/LHDW9kbCTNK--rdlU3GtTKobrMb6uJZ0ZgfdKnScyPU/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM4NTg2/OTcyLTE3OTM1OTU1/NzUtNjkzNC5qcGVn.jpeg",
+        "cover_image": "https://i.discogs.com/g6Muk6EmdtBtYkdwzg4WNiavK-Xl9l_V7fa-8dztn8k/rs:fit/g:sm/q:90/h:531/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM4NTg2/OTcyLTE3OTM1OTU1/NzUtNjkzNC5qcGVn.jpeg",
+        "title": "Crystal Castles",
+        "year": 2026,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "text": "Jewel Case",
+            "descriptions": [
+              "Album",
+              "Reissue"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Last Gang Records",
+            "catno": "LGE-CD-0962",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 44945,
+            "resource_url": "https://api.discogs.com/labels/44945"
+          },
+          {
+            "name": "Lies Records",
+            "catno": "LGE-CD-0962",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 196309,
+            "resource_url": "https://api.discogs.com/labels/196309"
+          }
+        ],
+        "artists": [
+          {
+            "name": "Crystal Castles",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 659646,
+            "resource_url": "https://api.discogs.com/artists/659646"
+          }
+        ],
+        "genres": [
+          "Electronic"
+        ],
+        "styles": [
+          "Glitch",
+          "Electro",
+          "Chiptune",
+          "Synth-pop"
         ]
       },
       "folder_id": 1
@@ -11868,6 +12431,61 @@
       "folder_id": 1
     },
     {
+      "id": 485676,
+      "instance_id": 2206739086,
+      "date_added": "2026-11-21T02:26:13-08:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 485676,
+        "master_id": 5441,
+        "master_url": "https://api.discogs.com/masters/5441",
+        "resource_url": "https://api.discogs.com/releases/485676",
+        "thumb": "https://i.discogs.com/299UBBrTGUVn1er9SOuJD5VKmQNzK6aVQJQrcw-AwOg/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTQ4NTY3/Ni0xMzg1ODk5OTEy/LTUwNjIuanBlZw.jpeg",
+        "cover_image": "https://i.discogs.com/et2wdXlwNHHbpWzUV92ZsjRZv3Ub_imnFyIXoY0wHG4/rs:fit/g:sm/q:90/h:542/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTQ4NTY3/Ni0xMzg1ODk5OTEy/LTUwNjIuanBlZw.jpeg",
+        "title": "Arcade Fire",
+        "year": 2005,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "EP",
+              "Reissue",
+              "Remastered"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Merge Records",
+            "catno": "MRG269CD",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 7496,
+            "resource_url": "https://api.discogs.com/labels/7496"
+          }
+        ],
+        "artists": [
+          {
+            "name": "Arcade Fire",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 281232,
+            "resource_url": "https://api.discogs.com/artists/281232"
+          }
+        ],
+        "genres": [
+          "Rock"
+        ],
+        "styles": [
+          "Art Rock"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
       "id": 106443,
       "instance_id": 1985621844,
       "date_added": "2025-04-05T00:19:09-07:00",
@@ -12163,8 +12781,8 @@
         "master_id": 52871,
         "master_url": "https://api.discogs.com/masters/52871",
         "resource_url": "https://api.discogs.com/releases/33945072",
-        "thumb": "https://i.discogs.com/cjQ758qJ2IsQq23Er33bHcg7yxFOf6xh-1vFb3AfRik/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTMzOTQ1/MDcyLTE3NTM2OTg4/ODMtNzc5MC5qcGVn.jpeg",
-        "cover_image": "https://i.discogs.com/rKOtVnqz1Fio1sQ4cwoPaEEXr0Zn0l_7dL4NrgLgMzU/rs:fit/g:sm/q:90/h:300/w:300/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTMzOTQ1/MDcyLTE3NTM2OTg4/ODMtNzc5MC5qcGVn.jpeg",
+        "thumb": "https://i.discogs.com/Q_g0MwyDcdPJ3jAjfSsvRGnkZ9FTRbrlEotCR8vdDIg/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTMzOTQ1/MDcyLTE3ODM1OTgz/ODQtOTAxOC5qcGVn.jpeg",
+        "cover_image": "https://i.discogs.com/oj6z2-d4LckhqnR8Gz6a-Kwl7uxk5QLXTte-B-9mDU0/rs:fit/g:sm/q:90/h:594/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTMzOTQ1/MDcyLTE3ODM1OTgz/ODQtOTAxOC5qcGVn.jpeg",
         "title": "Duty Now For The Future / New Traditionalists",
         "year": 2025,
         "formats": [
@@ -12199,11 +12817,15 @@
           }
         ],
         "genres": [
-          "Electronic"
+          "Electronic",
+          "Rock"
         ],
         "styles": [
           "Electro",
-          "Synth-pop"
+          "Synth-pop",
+          "New Wave",
+          "Post-Punk",
+          "Avantgarde"
         ]
       },
       "folder_id": 1
@@ -12788,12 +13410,12 @@
             "resource_url": "https://api.discogs.com/labels/7207"
           },
           {
-            "name": "Vanessa Genève",
+            "name": "Vanessa",
             "catno": "1150192",
             "entity_type": "1",
             "entity_type_name": "Label",
-            "id": 1402925,
-            "resource_url": "https://api.discogs.com/labels/1402925"
+            "id": 156901,
+            "resource_url": "https://api.discogs.com/labels/156901"
           },
           {
             "name": "Intercord",
@@ -13294,7 +13916,7 @@
         "thumb": "https://i.discogs.com/SVMZw7mNb6xix302ntMB3cC21XHTSzpx03ZldHTxuAg/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTkxODQy/MjYtMTY4MzA5MjI1/NC0zMjA3LmpwZWc.jpeg",
         "cover_image": "https://i.discogs.com/Kw8-HgHN4fKtlfA3FeBwt2Vz0jyK7iU3FE1A2uBHdjc/rs:fit/g:sm/q:90/h:592/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTkxODQy/MjYtMTY4MzA5MjI1/NC0zMjA3LmpwZWc.jpeg",
         "title": "Gorillaz",
-        "year": 2006,
+        "year": 0,
         "formats": [
           {
             "name": "CD",
@@ -13335,8 +13957,7 @@
         ],
         "styles": [
           "Hip Hop",
-          "Alternative Rock",
-          "Experimental"
+          "Alternative Rock"
         ]
       },
       "folder_id": 1
@@ -14193,6 +14814,62 @@
       "folder_id": 1
     },
     {
+      "id": 12109571,
+      "instance_id": 2197663887,
+      "date_added": "2026-10-25T03:03:31-07:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 12109571,
+        "master_id": 68445,
+        "master_url": "https://api.discogs.com/masters/68445",
+        "resource_url": "https://api.discogs.com/releases/12109571",
+        "thumb": "https://i.discogs.com/UEhFtE2-9N0CTFoMxxaE1g41At0MKwflKKkI0RYLCKI/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEyMTA5/NTcxLTE3NTM2MjAw/NDAtNjc0MS5qcGVn.jpeg",
+        "cover_image": "https://i.discogs.com/WdtDanMUtnJxLN4V3VWxHP9ZNFwuZwvd8hG7niLkbsA/rs:fit/g:sm/q:90/h:599/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEyMTA5/NTcxLTE3NTM2MjAw/NDAtNjc0MS5qcGVn.jpeg",
+        "title": "The Who Sell Out",
+        "year": 0,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Album",
+              "Reissue",
+              "Remastered",
+              "Repress"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Polydor",
+            "catno": "527 759-2",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 1610,
+            "resource_url": "https://api.discogs.com/labels/1610"
+          }
+        ],
+        "artists": [
+          {
+            "name": "The Who",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 196766,
+            "resource_url": "https://api.discogs.com/artists/196766"
+          }
+        ],
+        "genres": [
+          "Rock"
+        ],
+        "styles": [
+          "Pop Rock"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
       "id": 23514689,
       "instance_id": 2149762367,
       "date_added": "2026-05-28T12:08:50-07:00",
@@ -14579,6 +15256,72 @@
         ],
         "styles": [
           "Experimental"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
+      "id": 11169476,
+      "instance_id": 2197663998,
+      "date_added": "2026-10-25T03:03:51-07:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 11169476,
+        "master_id": 68534,
+        "master_url": "https://api.discogs.com/masters/68534",
+        "resource_url": "https://api.discogs.com/releases/11169476",
+        "thumb": "https://i.discogs.com/EirQ7LH4otBGVDCaQ0mKANPDc7tBB1VolA1XUSdPtzo/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTExMTY5/NDc2LTE1Mjk2MDM4/OTgtMjE4Mi5qcGVn.jpeg",
+        "cover_image": "https://i.discogs.com/NM5tKz7CqmztrBJWtXg1NLsWCAkGanZc8BKd43ZhOIE/rs:fit/g:sm/q:90/h:590/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTExMTY5/NDc2LTE1Mjk2MDM4/OTgtMjE4Mi5qcGVn.jpeg",
+        "title": "My Generation",
+        "year": 2012,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Album",
+              "Reissue",
+              "Remastered",
+              "Mono"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Polydor",
+            "catno": "3716077",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 1610,
+            "resource_url": "https://api.discogs.com/labels/1610"
+          },
+          {
+            "name": "Brunswick",
+            "catno": "3716077",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 14624,
+            "resource_url": "https://api.discogs.com/labels/14624"
+          }
+        ],
+        "artists": [
+          {
+            "name": "The Who",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 196766,
+            "resource_url": "https://api.discogs.com/artists/196766"
+          }
+        ],
+        "genres": [
+          "Rock",
+          "Blues"
+        ],
+        "styles": [
+          "Mod",
+          "Hard Rock"
         ]
       },
       "folder_id": 1
@@ -15112,7 +15855,7 @@
         "thumb": "https://i.discogs.com/ZZTrlAmAlT3qkIYe5rWjWWLa7OaLL7gSi7CRHnYNAbY/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTExNzcx/NjYtMTU1NDQ2Mjc2/Mi05NzkyLmpwZWc.jpeg",
         "cover_image": "https://i.discogs.com/zr6ZS46UG1qUo5SsHMMMQ1oUk8IDtdgtStfv0pT052Y/rs:fit/g:sm/q:90/h:592/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTExNzcx/NjYtMTU1NDQ2Mjc2/Mi05NzkyLmpwZWc.jpeg",
         "title": "Legend",
-        "year": 1984,
+        "year": 0,
         "formats": [
           {
             "name": "CD",
@@ -15749,7 +16492,8 @@
             "qty": "1",
             "text": "SRC/ARC",
             "descriptions": [
-              "Album"
+              "Album",
+              "Repress"
             ]
           }
         ],
@@ -16297,7 +17041,7 @@
         "thumb": "https://i.discogs.com/qYiPXjEwVxU0Ezyo4qKOzTsOrikgUz7eVoGp7ISsABg/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEwNjA2/NDAzLTE1MDA4MjY4/OTEtMjY5Ny5qcGVn.jpeg",
         "cover_image": "https://i.discogs.com/KmM1CZMFM8ztfUTc3MvBaqooYP94bQuTb9RjFMQsbJE/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEwNjA2/NDAzLTE1MDA4MjY4/OTEtMjY5Ny5qcGVn.jpeg",
         "title": "Parklife",
-        "year": 1994,
+        "year": 0,
         "formats": [
           {
             "name": "CD",
@@ -16356,17 +17100,17 @@
       "folder_id": 1
     },
     {
-      "id": 21802648,
+      "id": 5137906,
       "instance_id": 1979846118,
       "date_added": "2025-03-30T01:24:25-07:00",
       "rating": 0,
       "basic_information": {
-        "id": 21802648,
+        "id": 5137906,
         "master_id": 1508315,
         "master_url": "https://api.discogs.com/masters/1508315",
-        "resource_url": "https://api.discogs.com/releases/21802648",
-        "thumb": "https://i.discogs.com/T3OuJx3tUUk5xXkixaMNTdNEwDYgURnxctQkPIKgBEA/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTIxODAy/NjQ4LTE2NDI2MDQ4/NzMtNDczNy5qcGVn.jpeg",
-        "cover_image": "https://i.discogs.com/28zyc-Gb4PyqCztBVfo-UJcZhqpxnN3FhXeVRUWJOvc/rs:fit/g:sm/q:90/h:300/w:300/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTIxODAy/NjQ4LTE2NDI2MDQ4/NzMtNDczNy5qcGVn.jpeg",
+        "resource_url": "https://api.discogs.com/releases/5137906",
+        "thumb": "https://i.discogs.com/GRtS-d4U-gX1Q9kF8PDccb_AMMigmzaTZNDka8j34gE/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTUxMzc5/MDYtMTQ2MDMwNzQ0/NC05NDQ2LmpwZWc.jpeg",
+        "cover_image": "https://i.discogs.com/_Y5O0hqVRFC8nBxUpJrhLxP_ZtaGd26yUNfgWvV5_vM/rs:fit/g:sm/q:90/h:450/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTUxMzc5/MDYtMTQ2MDMwNzQ0/NC05NDQ2LmpwZWc.jpeg",
         "title": "Music From The Lord Of The Rings Trilogy",
         "year": 2004,
         "formats": [
@@ -16383,7 +17127,7 @@
         "labels": [
           {
             "name": "Silva Screen",
-            "catno": "FILMCDX 372",
+            "catno": "FILMXCD 372",
             "entity_type": "1",
             "entity_type_name": "Label",
             "id": 3217,
@@ -16683,8 +17427,8 @@
         "master_id": 946641,
         "master_url": "https://api.discogs.com/masters/946641",
         "resource_url": "https://api.discogs.com/releases/9139717",
-        "thumb": "https://i.discogs.com/sbQrs3S75McWrsyXe1fqfTME-QAHL9Fyedw9Ues4dBM/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTkxMzk3/MTctMTQ3NTQ1NzQ1/Mi01ODAxLmpwZWc.jpeg",
-        "cover_image": "https://i.discogs.com/XugXvQsHnW2Tckw_oudpvltvvtosGa19vLOsWEXNklY/rs:fit/g:sm/q:90/h:300/w:300/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTkxMzk3/MTctMTQ3NTQ1NzQ1/Mi01ODAxLmpwZWc.jpeg",
+        "thumb": "https://i.discogs.com/6zt-_P8cXUJVfOVBFXiGz6qQTEsZJ38wWGm_4oMXH30/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTkxMzk3/MTctMTc4Njk1NDI1/Mi02ODg4LmpwZWc.jpeg",
+        "cover_image": "https://i.discogs.com/dtdD1bDeihWPfmBSbEs2qRqNqHO6DuyV9jsCo0-i3K8/rs:fit/g:sm/q:90/h:586/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTkxMzk3/MTctMTc4Njk1NDI1/Mi02ODg4LmpwZWc.jpeg",
         "title": "Natural Stress Relief - Solitudes Music For Your Healh",
         "year": 1998,
         "formats": [
@@ -16692,14 +17436,14 @@
             "name": "CD",
             "qty": "1",
             "descriptions": [
-              "Album"
+              "Enhanced"
             ]
           }
         ],
         "labels": [
           {
             "name": "Solitudes",
-            "catno": "12157",
+            "catno": "CDG143",
             "entity_type": "1",
             "entity_type_name": "Label",
             "id": 55392,
@@ -16723,6 +17467,60 @@
         "styles": [
           "Health-Fitness",
           "Therapy"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
+      "id": 1014080,
+      "instance_id": 2206738769,
+      "date_added": "2026-11-21T02:24:50-08:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 1014080,
+        "master_id": 10341,
+        "master_url": "https://api.discogs.com/masters/10341",
+        "resource_url": "https://api.discogs.com/releases/1014080",
+        "thumb": "https://i.discogs.com/yOK2hfjhk5WKNmk9w1pkevCC0qejRPose0RAt_cbnso/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEwMTQw/ODAtMTQ0MTY1MDQy/NC0zNzcxLmpwZWc.jpeg",
+        "cover_image": "https://i.discogs.com/5ICfCfu06ZymsHi5YeOOZCh6MIoT3Zj_TLV7VsKMdso/rs:fit/g:sm/q:90/h:598/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEwMTQw/ODAtMTQ0MTY1MDQy/NC0zNzcxLmpwZWc.jpeg",
+        "title": "Elephant",
+        "year": 0,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Album"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Sonic Records (2)",
+            "catno": "SON 181",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 23108,
+            "resource_url": "https://api.discogs.com/labels/23108"
+          }
+        ],
+        "artists": [
+          {
+            "name": "The White Stripes",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 116345,
+            "resource_url": "https://api.discogs.com/artists/116345"
+          }
+        ],
+        "genres": [
+          "Rock"
+        ],
+        "styles": [
+          "Alternative Rock",
+          "Garage Rock"
         ]
       },
       "folder_id": 1
@@ -16818,6 +17616,14 @@
           {
             "name": "Sony Music Local",
             "catno": "6712871000",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 40559,
+            "resource_url": "https://api.discogs.com/labels/40559"
+          },
+          {
+            "name": "Sony Music Local",
+            "catno": "671287 1",
             "entity_type": "1",
             "entity_type_name": "Label",
             "id": 40559,
@@ -16968,6 +17774,68 @@
         ],
         "styles": [
           "Europop"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
+      "id": 16842408,
+      "instance_id": 2167041168,
+      "date_added": "2026-07-24T14:23:02-07:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 16842408,
+        "master_id": 1230243,
+        "master_url": "https://api.discogs.com/masters/1230243",
+        "resource_url": "https://api.discogs.com/releases/16842408",
+        "thumb": "https://i.discogs.com/5K-kcZGrTe4Wac0UouMnNY2ZFPw3rv4iJ35alxmiEPw/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2ODQy/NDA4LTE2NjE3Njcw/NjctMTM5Ni5qcGVn.jpeg",
+        "cover_image": "https://i.discogs.com/tsIgJ85lrIFeqsuLVhzWIx6obLSwXKI5sk7c1Nwoaek/rs:fit/g:sm/q:90/h:542/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2ODQy/NDA4LTE2NjE3Njcw/NjctMTM5Ni5qcGVn.jpeg",
+        "title": "American Dream",
+        "year": 2017,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Album"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Sony Music",
+            "catno": "889854561024",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 25487,
+            "resource_url": "https://api.discogs.com/labels/25487"
+          },
+          {
+            "name": "Columbia",
+            "catno": "889854561024",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 1866,
+            "resource_url": "https://api.discogs.com/labels/1866"
+          }
+        ],
+        "artists": [
+          {
+            "name": "LCD Soundsystem",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 38948,
+            "resource_url": "https://api.discogs.com/artists/38948"
+          }
+        ],
+        "genres": [
+          "Electronic",
+          "Rock"
+        ],
+        "styles": [
+          "Leftfield"
         ]
       },
       "folder_id": 1
@@ -17592,6 +18460,63 @@
       "folder_id": 1
     },
     {
+      "id": 12585223,
+      "instance_id": 2206738915,
+      "date_added": "2026-11-21T02:25:29-08:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 12585223,
+        "master_id": 1230626,
+        "master_url": "https://api.discogs.com/masters/1230626",
+        "resource_url": "https://api.discogs.com/releases/12585223",
+        "thumb": "https://i.discogs.com/X4Bz-ZTf3N8SOKkgarGWBbTg1w_AG4exK4OXcT0eZPE/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEyNTg1/MjIzLTE1NDA1MTEx/MjItMTM2OC5qcGVn.jpeg",
+        "cover_image": "https://i.discogs.com/5RAmrM1t2hPqk-jTrOTfLpvC2jFFLipsZn7N7dLNDeI/rs:fit/g:sm/q:90/h:539/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEyNTg1/MjIzLTE1NDA1MTEx/MjItMTM2OC5qcGVn.jpeg",
+        "title": "The Complete John Peel Sessions",
+        "year": 2018,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Album",
+              "Reissue"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Third Man Records",
+            "catno": "TMR-375",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 89238,
+            "resource_url": "https://api.discogs.com/labels/89238"
+          }
+        ],
+        "artists": [
+          {
+            "name": "The White Stripes",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 116345,
+            "resource_url": "https://api.discogs.com/artists/116345"
+          }
+        ],
+        "genres": [
+          "Rock"
+        ],
+        "styles": [
+          "Blues Rock",
+          "Garage Rock",
+          "Rock & Roll",
+          "Indie Rock"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
       "id": 2797241,
       "instance_id": 2149189089,
       "date_added": "2026-05-26T11:18:43-07:00",
@@ -17922,6 +18847,61 @@
       "folder_id": 1
     },
     {
+      "id": 7927519,
+      "instance_id": 2167041367,
+      "date_added": "2026-07-24T14:23:43-07:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 7927519,
+        "master_id": 43556,
+        "master_url": "https://api.discogs.com/masters/43556",
+        "resource_url": "https://api.discogs.com/releases/7927519",
+        "thumb": "https://i.discogs.com/PUWVOoQMZ23eMVUbBgudPSQUNK3TR0f6jMYwplOPAYE/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTc5Mjc1/MTktMTU4MTUwMjQ3/MC02MTAzLmpwZWc.jpeg",
+        "cover_image": "https://i.discogs.com/SY5tB0TaOZQAK3XtjYABNkXgAgh-T_PvGsx4Be7khYI/rs:fit/g:sm/q:90/h:534/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTc5Mjc1/MTktMTU4MTUwMjQ3/MC02MTAzLmpwZWc.jpeg",
+        "title": "Second Toughest In The Infants",
+        "year": 2014,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Album",
+              "Reissue"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "Universal Music Catalogue",
+            "catno": "0602537938629",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 97701,
+            "resource_url": "https://api.discogs.com/labels/97701"
+          }
+        ],
+        "artists": [
+          {
+            "name": "Underworld",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 1280,
+            "resource_url": "https://api.discogs.com/artists/1280"
+          }
+        ],
+        "genres": [
+          "Electronic"
+        ],
+        "styles": [
+          "Techno",
+          "Deep House"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
       "id": 8242333,
       "instance_id": 2149218515,
       "date_added": "2026-05-26T13:01:01-07:00",
@@ -18019,7 +18999,7 @@
         ],
         "artists": [
           {
-            "name": "Boudewijn De Groot",
+            "name": "Boudewijn de Groot",
             "anv": "",
             "join": "",
             "role": "",
@@ -19148,10 +20128,10 @@
         "master_id": 57830,
         "master_url": "https://api.discogs.com/masters/57830",
         "resource_url": "https://api.discogs.com/releases/369889",
-        "thumb": "https://i.discogs.com/hx22FiqSq0ksEoJAMBSQMwmZEeRKMqXJIkXnzP_viYA/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM2OTg4/OS0xMTU5NjEyMDYz/LmpwZWc.jpeg",
-        "cover_image": "https://i.discogs.com/PulhPsRT57_7xR2ZeL9x9Z_xD2k7qvdFNzf0hQmsnSU/rs:fit/g:sm/q:90/h:585/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM2OTg4/OS0xMTU5NjEyMDYz/LmpwZWc.jpeg",
+        "thumb": "https://i.discogs.com/QZCalVONHv1r_sOZ-MxAgv_lBxMT_OyPs5Xav9YF14M/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM2OTg4/OS0xNTQxNDQzODQy/LTQwMjYuanBlZw.jpeg",
+        "cover_image": "https://i.discogs.com/G6VZm9TJyDpMdjMVEtM3rv_QNGyYxlFYUCCAWmOrtg0/rs:fit/g:sm/q:90/h:593/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM2OTg4/OS0xNTQxNDQzODQy/LTQwMjYuanBlZw.jpeg",
         "title": "Automatic For The People",
-        "year": 0,
+        "year": 1998,
         "formats": [
           {
             "name": "CD",
@@ -19661,7 +20641,9 @@
           "Ambient",
           "Dark Ambient",
           "Drone",
-          "Minimal"
+          "Minimal",
+          "Techno",
+          "Modern Classical"
         ]
       },
       "folder_id": 1
@@ -19837,65 +20819,6 @@
       "folder_id": 1
     },
     {
-      "id": 13992623,
-      "instance_id": 1992474366,
-      "date_added": "2025-04-11T23:08:53-07:00",
-      "rating": 0,
-      "basic_information": {
-        "id": 13992623,
-        "master_id": 69294,
-        "master_url": "https://api.discogs.com/masters/69294",
-        "resource_url": "https://api.discogs.com/releases/13992623",
-        "thumb": "https://i.discogs.com/gv0uL7pSNw4n2ojWVo_t-8o9Rg6lZ-fd_VsQbPiA4PU/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEzOTky/NjIzLTE1NjU2NDU4/MTEtNjE2MS5qcGVn.jpeg",
-        "cover_image": "https://i.discogs.com/wl0_0jcgKtRLoRt258GUrffE8ke7HMzfT50UM8aXILk/rs:fit/g:sm/q:90/h:442/w:587/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEzOTky/NjIzLTE1NjU2NDU4/MTEtNjE2MS5qcGVn.jpeg",
-        "title": "Believe",
-        "year": 1998,
-        "formats": [
-          {
-            "name": "CD",
-            "qty": "1",
-            "descriptions": [
-              "Album"
-            ]
-          }
-        ],
-        "labels": [
-          {
-            "name": "WEA",
-            "catno": "3984 25319 2",
-            "entity_type": "1",
-            "entity_type_name": "Label",
-            "id": 40396,
-            "resource_url": "https://api.discogs.com/labels/40396"
-          }
-        ],
-        "artists": [
-          {
-            "name": "Cher",
-            "anv": "",
-            "join": "",
-            "role": "",
-            "tracks": "",
-            "id": 17961,
-            "resource_url": "https://api.discogs.com/artists/17961"
-          }
-        ],
-        "genres": [
-          "Electronic",
-          "Latin",
-          "Pop"
-        ],
-        "styles": [
-          "Eurodance",
-          "House",
-          "Techno",
-          "Dance-pop",
-          "Disco"
-        ]
-      },
-      "folder_id": 1
-    },
-    {
       "id": 8387403,
       "instance_id": 2148518245,
       "date_added": "2026-05-24T09:33:40-07:00",
@@ -19913,6 +20836,7 @@
           {
             "name": "CD",
             "qty": "1",
+            "text": "WMME Alsdorf Pressing",
             "descriptions": [
               "Album",
               "Stereo"
@@ -20471,6 +21395,63 @@
         ],
         "styles": [
           "Son"
+        ]
+      },
+      "folder_id": 1
+    },
+    {
+      "id": 29649331,
+      "instance_id": 2206739199,
+      "date_added": "2026-11-21T02:26:50-08:00",
+      "rating": 0,
+      "basic_information": {
+        "id": 29649331,
+        "master_id": 3372529,
+        "master_url": "https://api.discogs.com/masters/3372529",
+        "resource_url": "https://api.discogs.com/releases/29649331",
+        "thumb": "https://i.discogs.com/lb8kVg-jT-FRRNOnlbNfnC8e89GBTbvOdUJbiQCY1GI/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI5NjQ5/MzMxLTE3MDY2NTcz/NDgtOTAwOS5qcGVn.jpeg",
+        "cover_image": "https://i.discogs.com/x4eJQ3QUOeaV2FixbHWF_twg32Tctq3geQm18PDtn_0/rs:fit/g:sm/q:90/h:598/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI5NjQ5/MzMxLTE3MDY2NTcz/NDgtOTAwOS5qcGVn.jpeg",
+        "title": "Wall Of Eyes",
+        "year": 2024,
+        "formats": [
+          {
+            "name": "CD",
+            "qty": "1",
+            "descriptions": [
+              "Album"
+            ]
+          }
+        ],
+        "labels": [
+          {
+            "name": "XL Recordings",
+            "catno": "XL1394CD",
+            "entity_type": "1",
+            "entity_type_name": "Label",
+            "id": 160,
+            "resource_url": "https://api.discogs.com/labels/160"
+          }
+        ],
+        "artists": [
+          {
+            "name": "The Smile (5)",
+            "anv": "",
+            "join": "",
+            "role": "",
+            "tracks": "",
+            "id": 10560751,
+            "resource_url": "https://api.discogs.com/artists/10560751"
+          }
+        ],
+        "genres": [
+          "Electronic",
+          "Rock"
+        ],
+        "styles": [
+          "Alternative Rock",
+          "Art Rock",
+          "Experimental",
+          "Indie Rock"
         ]
       },
       "folder_id": 1

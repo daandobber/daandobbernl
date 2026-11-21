@@ -1,0 +1,5 @@
+# Only these packages may run their install scripts (needed to build the site).
+allowBuilds:
+  "@biomejs/biome": true
+  esbuild: true
+  sharp: true
