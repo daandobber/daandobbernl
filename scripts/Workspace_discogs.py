@@ -37,7 +37,8 @@ while True:
     page += 1
 
 # Zorg dat de output map bestaat (src/data)
-output_dir = "/var/www/vhosts/daandobber.nl/httpdocs/src/data"
+# (relative to the repository, so it works on GitHub Actions, on a server and locally alike)
+output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src", "data")
 os.makedirs(output_dir, exist_ok=True)
 output_path = os.path.join(output_dir, "cd_collection.json")
 
