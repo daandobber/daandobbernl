@@ -1,7 +1,11 @@
 ﻿---
 import BaseHead from "@/components/BaseHead.astro";
+import ClippyAssistant from "@/components/ClippyAssistant.astro";
 import DesktopIcons from "@/components/DesktopIcons.astro";
 import DesktopWidgets from "@/components/DesktopWidgets.astro";
+import EnergyPlayerApp from "@/components/EnergyPlayerApp.astro";
+import ExplorerApp from "@/components/ExplorerApp.astro";
+import MsnMessengerApp from "@/components/MsnMessengerApp.astro";
 import SkipLink from "@/components/SkipLink.astro";
 import ThemeProvider from "@/components/ThemeProvider.astro";
 import Footer from "@/components/layout/Footer.astro";
@@ -49,6 +53,10 @@ const {
 				</div>
 			</main>
 		</div>
+		<EnergyPlayerApp />
+		<ExplorerApp />
+		<MsnMessengerApp />
+		<ClippyAssistant />
 		<Footer />
 	</body>
 </html>

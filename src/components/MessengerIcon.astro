@@ -1,0 +1,46 @@
+{/* A Messenger-style two-person contact glyph — riffs on the classic look without copying it 1:1 (pink instead of green). Swaps to a punchier, more saturated set in dark mode via CSS custom properties. */}
+<svg class="messenger-icon" viewBox="0 0 100 92" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+	<defs>
+		<radialGradient id="messenger-icon-pink" cx="35%" cy="25%" r="75%">
+			<stop offset="0%" style="stop-color: var(--msn-pink-1)" />
+			<stop offset="55%" style="stop-color: var(--msn-pink-2)" />
+			<stop offset="100%" style="stop-color: var(--msn-pink-3)" />
+		</radialGradient>
+		<radialGradient id="messenger-icon-blue" cx="35%" cy="22%" r="75%">
+			<stop offset="0%" style="stop-color: var(--msn-blue-1)" />
+			<stop offset="50%" style="stop-color: var(--msn-blue-2)" />
+			<stop offset="100%" style="stop-color: var(--msn-blue-3)" />
+		</radialGradient>
+	</defs>
+	<g>
+		<circle cx="30" cy="26" r="15" fill="url(#messenger-icon-pink)" style="stroke: var(--msn-pink-stroke)" stroke-width="3" />
+		<path d="M6 88 C6 60 16 44 30 44 C44 44 54 60 54 88 Z" fill="url(#messenger-icon-pink)" style="stroke: var(--msn-pink-stroke)" stroke-width="3" />
+	</g>
+	<g>
+		<circle cx="62" cy="30" r="19" fill="url(#messenger-icon-blue)" style="stroke: var(--msn-blue-stroke)" stroke-width="3" />
+		<path d="M30 90 C30 56 44 48 62 48 C80 48 94 56 94 90 Z" fill="url(#messenger-icon-blue)" style="stroke: var(--msn-blue-stroke)" stroke-width="3" />
+	</g>
+</svg>
+
+<style>
+	.messenger-icon {
+		--msn-pink-1: #ffe3f3;
+		--msn-pink-2: #f472b6;
+		--msn-pink-3: #c0267a;
+		--msn-pink-stroke: #7a1652;
+		--msn-blue-1: #eaf8ff;
+		--msn-blue-2: #8dd9ed;
+		--msn-blue-3: #4189df;
+		--msn-blue-stroke: #1b3a6b;
+	}
+	:global([data-theme="dark"]) .messenger-icon {
+		--msn-pink-1: #ffcaeb;
+		--msn-pink-2: #ff5fb0;
+		--msn-pink-3: #a3216e;
+		--msn-pink-stroke: #4a0e34;
+		--msn-blue-1: #bfe8ff;
+		--msn-blue-2: #4fb3e8;
+		--msn-blue-3: #1f5fb8;
+		--msn-blue-stroke: #0c1f3d;
+	}
+</style>

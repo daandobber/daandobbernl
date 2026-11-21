@@ -1,33 +1,55 @@
+---
+import MessengerIcon from "@/components/MessengerIcon.astro";
+---
+
 <nav class="desktop-icons" aria-label="Bureaubladpictogrammen">
-	<button class="desktop-icon desktop-icon--resonaut" type="button" data-desktop-path="https://resonaut.daandobber.nl" data-desktop-title="Resonaut">
+	<button class="desktop-icon desktop-icon--resonaut" type="button" data-desktop-path="https://resonaut.daandobber.nl" data-desktop-title="Resonaut" data-clippy-key="resonaut">
 		<span class="desktop-icon__image" aria-hidden="true"><span>R</span></span>
 		<strong>Resonaut</strong>
 	</button>
-	<button class="desktop-icon desktop-icon--blog" type="button" data-desktop-path="/posts/" data-desktop-title="Blog">
+	<button class="desktop-icon desktop-icon--blog" type="button" data-desktop-path="/posts/" data-desktop-title="Blog" data-clippy-key="blog">
 		<span class="desktop-icon__image" aria-hidden="true"><span>✎</span></span>
 		<strong>Blog</strong>
 	</button>
-	<button class="desktop-icon desktop-icon--blocks" type="button" data-desktop-path="/blokken4.html" data-desktop-title="Blokken">
+	<button class="desktop-icon desktop-icon--blocks" type="button" data-desktop-path="/blokken4.html" data-desktop-title="Blokken" data-clippy-key="blokken">
 		<span class="desktop-icon__image" aria-hidden="true"><span>▦</span></span>
 		<strong>Blokken</strong>
 	</button>
-	<button class="desktop-icon desktop-icon--documents" type="button" data-desktop-path="aqua://documents" data-desktop-title="Mijn documenten">
+	<button class="desktop-icon desktop-icon--documents" type="button" data-desktop-path="aqua://documents" data-desktop-title="Mijn documenten" data-clippy-key="documenten">
 		<span class="desktop-icon__image" aria-hidden="true"><span>▰</span></span>
 		<strong>Mijn documenten</strong>
+	</button>
+	<button class="desktop-icon desktop-icon--explorer" type="button" data-app-toggle="explorer" data-clippy-key="verkenner">
+		<span class="desktop-icon__image" aria-hidden="true"></span>
+		<strong>Verkenner</strong>
+	</button>
+	<button class="desktop-icon desktop-icon--contact" type="button" data-app-toggle="msn" data-clippy-key="contact">
+		<span class="desktop-icon__image desktop-icon__image--messenger" aria-hidden="true"><MessengerIcon /></span>
+		<strong>Contact</strong>
 	</button>
 </nav>
 
 <script>
-	for (const icon of document.querySelectorAll<HTMLButtonElement>("[data-desktop-path]")) {
-		const openIcon = () => {
-			document.dispatchEvent(new CustomEvent("aqua-open-window", {
-				detail: { path: icon.dataset.desktopPath, title: icon.dataset.desktopTitle },
-			}));
-		};
+	for (const icon of document.querySelectorAll<HTMLButtonElement>("[data-desktop-path], [data-app-toggle]")) {
 		icon.addEventListener("click", () => {
 			for (const other of document.querySelectorAll(".desktop-icon.is-selected")) other.classList.remove("is-selected");
 			icon.classList.add("is-selected");
-			openIcon();
+			if (icon.dataset.appToggle) {
+				const app = document.querySelector<HTMLElement>(`[data-app="${icon.dataset.appToggle}"]`);
+				if (app) {
+					app.hidden = !app.hidden;
+					if (!app.hidden && icon.dataset.clippyKey) {
+						document.dispatchEvent(new CustomEvent("aqua-app-opened", { detail: { key: icon.dataset.clippyKey } }));
+					}
+				}
+				return;
+			}
+			document.dispatchEvent(new CustomEvent("aqua-open-window", {
+				detail: { path: icon.dataset.desktopPath, title: icon.dataset.desktopTitle },
+			}));
+			if (icon.dataset.clippyKey) {
+				document.dispatchEvent(new CustomEvent("aqua-app-opened", { detail: { key: icon.dataset.clippyKey } }));
+			}
 		});
 	}
 </script>

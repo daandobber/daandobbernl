@@ -1,0 +1,22 @@
+{
+	"welcome": "Welkom op de site van Daan! Klik gerust wat rond op het bureaublad — alles hier is een klein programmaatje.",
+	"idle": [
+		"Het lijkt erop dat je aan het rondkijken bent. Kan ik je ergens mee helpen?",
+		"Nog niet op de Blog geweest? Daar staan verhalen over Daans projecten en muziek.",
+		"Met Verkenner kun je door Daans GitHub-repositories bladeren, net als in een echte bestandsverkenner.",
+		"Zin in muziek? Probeer eens de Videospeler op het bureaublad.",
+		"Wil je iets kwijt aan Daan? Klik op het Contact-icoontje rechtsonder in de taakbalk.",
+		"Wist je dat Daan zijn hele CD-collectie heeft gedigitaliseerd? Een kijkje waard.",
+		"Het lijkt erop dat je een website probeert te bekijken. Zal ik een assistent-hond in plaats van een paperclip voorstellen?"
+	],
+	"tips": {
+		"resonaut": "Het lijkt erop dat je Resonaut wilt openen! Dat is een browser-synthesizer/sequencer die Daan heeft gebouwd.",
+		"blog": "Dit is Daans blog, met verhalen over projecten en muziek.",
+		"blokken": "Blokken is een klein spelletje/tool dat Daan ooit heeft gemaakt.",
+		"documenten": "Hier vind je Daans CV.",
+		"verkenner": "Met Verkenner kun je door Daans GitHub-repositories en documenten bladeren, net als in een echte bestandsverkenner.",
+		"videospeler": "Hier staan een paar van Daans favoriete YouTube-video's.",
+		"cd-collectie": "Een overzicht van Daans CD-collectie.",		"blog-favoriet": "Toegevoegd aan favorieten! Nou ja, hij onthoudt het niet echt, maar het voelt vast goed.",
+		"contact": "Chat gerust met Daan! Kies een naam en typ je bericht — hij krijgt het rechtstreeks binnen."
+	}
+}

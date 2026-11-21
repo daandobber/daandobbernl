@@ -1,0 +1,928 @@
+---
+import repoData from "@/data/github_repos.json";
+import documentData from "@/data/documents.json";
+
+interface RepoRef {
+	owner: string;
+	name: string;
+}
+
+interface DocumentRef {
+	title: string;
+	path: string;
+}
+
+const repos: RepoRef[] = repoData?.repos ?? [];
+const documents: DocumentRef[] = documentData?.documents ?? [];
+---
+
+<explorer-app class="ghb" data-app="explorer" data-repos={JSON.stringify(repos)} data-documents={JSON.stringify(documents)} hidden>
+	<div class="ghb__titlebar" data-ghb-drag-handle>
+		<div class="ghb__titlebar-icon" aria-hidden="true">⌂</div>
+		<span class="ghb__titlebar-text">Verkenner</span>
+		<div class="ghb__capbtns">
+			<button type="button" class="ghb__capbtn ghb__capbtn--min" data-ghb-min aria-label="Minimaliseren"></button>
+			<button type="button" class="ghb__capbtn ghb__capbtn--restore" data-ghb-restore aria-label="Herstellen"></button>
+			<button type="button" class="ghb__capbtn ghb__capbtn--close" data-ghb-close aria-label="Sluiten"></button>
+		</div>
+	</div>
+
+	<div class="ghb__toolbar">
+		<button type="button" class="ghb__navbtn ghb__navbtn--back" data-ghb-back aria-label="Terug" disabled></button>
+		<button type="button" class="ghb__navbtn ghb__navbtn--forward" data-ghb-forward aria-label="Vooruit" disabled></button>
+		<div class="ghb__addressbar">
+			<span class="ghb__addressbar-icon" aria-hidden="true">⌂</span>
+			<div class="ghb__breadcrumb" data-ghb-breadcrumb aria-label="Locatie"></div>
+		</div>
+		<button type="button" class="ghb__navbtn ghb__navbtn--refresh" data-ghb-refresh aria-label="Vernieuwen">⟳</button>
+		<input type="search" class="ghb__search" data-ghb-search placeholder="Zoeken..." aria-label="Zoeken in deze map" />
+	</div>
+
+	<div class="ghb__actionbar" data-ghb-actions hidden>
+		<button type="button" data-ghb-clone title="Kopieer git clone-commando">⧉ Clone</button>
+		<a data-ghb-zip href="#" target="_blank" rel="noopener" title="Download ZIP">⇩ ZIP</a>
+		<a data-ghb-github href="#" target="_blank" rel="noopener" title="Bekijk op GitHub">↗ GitHub</a>
+	</div>
+
+	<div class="ghb__body">
+		<div class="ghb__sidebar">
+			<div class="ghb__tree" data-ghb-tree></div>
+		</div>
+		<div class="ghb__content">
+			<div class="ghb__grid" data-ghb-grid></div>
+			<div class="ghb__viewer" data-ghb-viewer hidden>
+				<div class="ghb__viewer-head" data-ghb-viewer-name></div>
+				<div class="ghb__viewer-scroll"><pre class="ghb__viewer-content" data-ghb-viewer-content></pre></div>
+			</div>
+			<p class="ghb__message" data-ghb-message hidden></p>
+		</div>
+	</div>
+
+	<div class="ghb__statusbar">
+		<span data-ghb-status>Gereed</span>
+	</div>
+</explorer-app>
+
+<script>
+	interface RepoRef { owner: string; name: string }
+	interface DocumentRef { title: string; path: string }
+	interface TreeEntry { name: string; path: string; type: "file" | "dir"; download_url: string | null; size: number }
+	type Loc =
+		| { kind: "root" }
+		| { kind: "documents" }
+		| { kind: "repo"; owner: string; name: string; defaultBranch: string; htmlUrl: string };
+
+	interface TreeChildSpec {
+		key: string;
+		label: string;
+		onSelect: () => void | Promise<void>;
+		onExpand?: () => Promise<TreeChildSpec[]>;
+	}
+
+	const IMAGE_EXTENSIONS = /\.(png|jpe?g|gif|webp|svg|bmp|ico)$/i;
+	const MAX_PREVIEW_BYTES = 300_000;
+
+	class ExplorerApp extends HTMLElement {
+		#taskButton: HTMLButtonElement | null = null;
+		#zLayer = 1950;
+		#cache = new Map<string, unknown>();
+		#repos: RepoRef[] = [];
+		#documents: DocumentRef[] = [];
+		#currentLocation: Loc = { kind: "root" };
+		#currentPath = "";
+		#history: (() => void | Promise<void>)[] = [];
+		#historyIndex = -1;
+
+		connectedCallback() {
+			if (window.self !== window.top) return;
+			try {
+				this.#repos = JSON.parse(this.dataset.repos ?? "[]");
+			} catch {
+				this.#repos = [];
+			}
+			try {
+				this.#documents = JSON.parse(this.dataset.documents ?? "[]");
+			} catch {
+				this.#documents = [];
+			}
+
+			this.setupWindowControls();
+			this.setupDrag();
+			this.setupBrowser();
+		}
+
+		async fetchJson(url: string): Promise<any | null> {
+			if (this.#cache.has(url)) return this.#cache.get(url);
+			try {
+				const response = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
+				if (!response.ok) throw new Error(`GitHub API ${response.status}`);
+				const data = await response.json();
+				this.#cache.set(url, data);
+				return data;
+			} catch (error) {
+				if (import.meta.env.DEV) console.error(error);
+				return null;
+			}
+		}
+
+		setupBrowser() {
+			const root = this;
+			const grid = root.querySelector<HTMLElement>("[data-ghb-grid]");
+			const viewer = root.querySelector<HTMLElement>("[data-ghb-viewer]");
+			const viewerName = root.querySelector<HTMLElement>("[data-ghb-viewer-name]");
+			const viewerContent = root.querySelector<HTMLElement>("[data-ghb-viewer-content]");
+			const message = root.querySelector<HTMLElement>("[data-ghb-message]");
+			const breadcrumb = root.querySelector<HTMLElement>("[data-ghb-breadcrumb]");
+			const backBtn = root.querySelector<HTMLButtonElement>("[data-ghb-back]");
+			const forwardBtn = root.querySelector<HTMLButtonElement>("[data-ghb-forward]");
+			const refreshBtn = root.querySelector<HTMLButtonElement>("[data-ghb-refresh]");
+			const searchEl = root.querySelector<HTMLInputElement>("[data-ghb-search]");
+			const actions = root.querySelector<HTMLElement>("[data-ghb-actions]");
+			const statusEl = root.querySelector<HTMLElement>("[data-ghb-status]");
+			const cloneBtn = root.querySelector<HTMLButtonElement>("[data-ghb-clone]");
+			const zipLink = root.querySelector<HTMLAnchorElement>("[data-ghb-zip]");
+			const githubLink = root.querySelector<HTMLAnchorElement>("[data-ghb-github]");
+			const treeEl = root.querySelector<HTMLElement>("[data-ghb-tree]");
+			const treeRows = new Map<string, HTMLElement>();
+
+			const setStatus = (text: string) => { if (statusEl) statusEl.textContent = text; };
+
+			const showGrid = () => {
+				if (message) message.hidden = true;
+				if (viewer) viewer.hidden = true;
+				if (grid) grid.hidden = false;
+				if (searchEl) searchEl.value = "";
+			};
+			const showMessage = (text: string) => {
+				if (grid) grid.hidden = true;
+				if (viewer) viewer.hidden = true;
+				if (message) { message.hidden = false; message.textContent = text; }
+			};
+			const showViewer = () => {
+				if (grid) grid.hidden = true;
+				if (message) message.hidden = true;
+				if (viewer) viewer.hidden = false;
+			};
+
+			const updateNavButtons = () => {
+				if (backBtn) {
+					const viewingFile = viewer ? !viewer.hidden : false;
+					backBtn.disabled = !viewingFile && this.#historyIndex <= 0;
+				}
+				if (forwardBtn) forwardBtn.disabled = this.#historyIndex >= this.#history.length - 1;
+			};
+
+			const pushHistory = (action: () => void | Promise<void>) => {
+				this.#history = this.#history.slice(0, this.#historyIndex + 1);
+				this.#history.push(action);
+				this.#historyIndex = this.#history.length - 1;
+				action();
+				updateNavButtons();
+			};
+
+			const highlightActive = (key: string) => {
+				for (const [rowKey, row] of treeRows) row.classList.toggle("is-active", rowKey === key);
+			};
+
+			const makeTile = (type: "dir" | "file", name: string, sub: string, onClick: () => void) => {
+				const tile = document.createElement("button");
+				tile.type = "button";
+				tile.className = "ghb__tile";
+				const iconSpan = document.createElement("span");
+				iconSpan.className = type === "dir" ? "tile-folder-icon" : "tile-file-icon";
+				iconSpan.setAttribute("aria-hidden", "true");
+				const strong = document.createElement("strong");
+				strong.textContent = name;
+				const small = document.createElement("small");
+				small.textContent = sub;
+				tile.append(iconSpan, strong, small);
+				tile.addEventListener("click", onClick);
+				return tile;
+			};
+
+			const addGroupHeading = (text: string, count: number) => {
+				if (!grid) return;
+				const heading = document.createElement("div");
+				heading.className = "ghb__group-heading";
+				heading.textContent = `${text} (${count})`;
+				grid.append(heading);
+			};
+
+			const formatSize = (bytes: number) => {
+				if (bytes < 1024) return `${bytes} B`;
+				if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+				return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+			};
+
+			const renderBreadcrumb = () => {
+				if (!breadcrumb) return;
+				breadcrumb.innerHTML = "";
+				const segments: { label: string; onClick: (() => void) | null }[] = [
+					{ label: "Verkenner", onClick: this.#currentLocation.kind !== "root" ? () => pushHistory(showRoot) : null },
+				];
+				if (this.#currentLocation.kind === "documents") {
+					segments.push({ label: "Mijn documenten", onClick: null });
+				} else if (this.#currentLocation.kind === "repo") {
+					const { owner, name } = this.#currentLocation;
+					const parts = this.#currentPath ? this.#currentPath.split("/") : [];
+					segments.push({ label: name, onClick: parts.length ? () => pushHistory(() => gotoRepoPath(owner, name, "")) : null });
+					parts.forEach((part, index) => {
+						const path = parts.slice(0, index + 1).join("/");
+						const isLast = index === parts.length - 1;
+						segments.push({ label: part, onClick: isLast ? null : () => pushHistory(() => gotoRepoPath(owner, name, path)) });
+					});
+				}
+				segments.forEach((segment, index) => {
+					if (index > 0) breadcrumb.append(document.createTextNode(" › "));
+					if (segment.onClick) {
+						const button = document.createElement("button");
+						button.type = "button";
+						button.textContent = segment.label;
+						button.addEventListener("click", segment.onClick);
+						breadcrumb.append(button);
+					} else {
+						const strong = document.createElement("strong");
+						strong.textContent = segment.label;
+						breadcrumb.append(strong);
+					}
+				});
+			};
+
+			const showRoot = () => {
+				this.#currentLocation = { kind: "root" };
+				this.#currentPath = "";
+				if (actions) actions.hidden = true;
+				renderBreadcrumb();
+				for (const row of treeRows.values()) row.classList.remove("is-active");
+				setStatus("Gereed");
+				showGrid();
+				if (!grid) return;
+				grid.innerHTML = "";
+				if (this.#documents.length > 0) {
+					addGroupHeading("Snelkoppelingen", this.#documents.length);
+					grid.append(makeTile("dir", "Mijn documenten", "Locatie", () => pushHistory(openDocuments)));
+				}
+				if (this.#repos.length > 0) {
+					addGroupHeading("Repositories", this.#repos.length);
+					for (const repo of this.#repos) grid.append(makeTile("dir", repo.name, "Repository", () => pushHistory(() => gotoRepoPath(repo.owner, repo.name, ""))));
+				}
+				if (this.#documents.length === 0 && this.#repos.length === 0) showMessage("Nog niets toegevoegd.");
+			};
+
+			const openDocuments = () => {
+				this.#currentLocation = { kind: "documents" };
+				this.#currentPath = "";
+				if (actions) actions.hidden = true;
+				renderBreadcrumb();
+				highlightActive("documents");
+				setStatus("Gereed");
+				showGrid();
+				if (!grid) return;
+				grid.innerHTML = "";
+				if (this.#documents.length === 0) {
+					showMessage("Nog geen documenten toegevoegd. Voeg ze toe in src/data/documents.json.");
+					return;
+				}
+				for (const doc of this.#documents) {
+					grid.append(makeTile("file", doc.title, "Document", () => {
+						document.dispatchEvent(new CustomEvent("aqua-open-window", { detail: { path: doc.path, title: doc.title } }));
+					}));
+				}
+			};
+
+			const renderEntries = (entries: TreeEntry[]) => {
+				showGrid();
+				if (!grid || this.#currentLocation.kind !== "repo") return;
+				const { owner, name } = this.#currentLocation;
+				grid.innerHTML = "";
+				const sorted = [...entries].sort((a, b) => {
+					if (a.type !== b.type) return a.type === "dir" ? -1 : 1;
+					return a.name.localeCompare(b.name);
+				});
+				for (const entry of sorted) {
+					const sub = entry.type === "dir" ? "Map" : formatSize(entry.size);
+					grid.append(makeTile(entry.type, entry.name, sub, () =>
+						entry.type === "dir" ? pushHistory(() => gotoRepoPath(owner, name, entry.path)) : openFile(entry)
+					));
+				}
+				if (sorted.length === 0) showMessage("Deze map is leeg.");
+			};
+
+			const openDir = async (path: string) => {
+				if (this.#currentLocation.kind !== "repo") return;
+				const { owner, name } = this.#currentLocation;
+				this.#currentPath = path;
+				renderBreadcrumb();
+				highlightActive(`repo::${owner}/${name}::${path}`);
+				setStatus("Laden…");
+				const data = await this.fetchJson(`https://api.github.com/repos/${owner}/${name}/contents/${path}`);
+				if (!data || !Array.isArray(data)) {
+					showMessage("Kon deze map niet laden. Probeer het later opnieuw of bekijk de repository direct op GitHub.");
+					setStatus("Kon map niet laden");
+					return;
+				}
+				renderEntries(data);
+				setStatus("Gereed");
+			};
+
+			const openFile = async (entry: TreeEntry) => {
+				if (viewerName) viewerName.textContent = entry.name;
+				showViewer();
+				updateNavButtons();
+				if (viewerContent) viewerContent.innerHTML = "";
+
+				if (IMAGE_EXTENSIONS.test(entry.name) && entry.download_url) {
+					const img = document.createElement("img");
+					img.src = entry.download_url;
+					img.alt = entry.name;
+					img.className = "ghb__viewer-image";
+					viewerContent?.append(img);
+					return;
+				}
+				if (entry.size > MAX_PREVIEW_BYTES) {
+					if (viewerContent) viewerContent.textContent = "Dit bestand is te groot om hier te tonen — bekijk het op GitHub.";
+					return;
+				}
+				if (!entry.download_url) {
+					if (viewerContent) viewerContent.textContent = "Dit bestand kan niet worden weergegeven.";
+					return;
+				}
+				setStatus("Bestand laden…");
+				try {
+					const response = await fetch(entry.download_url);
+					if (!response.ok) throw new Error(String(response.status));
+					if (viewerContent) viewerContent.textContent = await response.text();
+					setStatus("Gereed");
+				} catch (error) {
+					if (import.meta.env.DEV) console.error(error);
+					if (viewerContent) viewerContent.textContent = "Kon de inhoud niet ophalen.";
+					setStatus("Fout bij laden");
+				}
+			};
+
+			const openRepo = async (owner: string, name: string) => {
+				setStatus("Repository laden…");
+				showGrid();
+				if (grid) grid.innerHTML = "";
+				const meta = await this.fetchJson(`https://api.github.com/repos/${owner}/${name}`);
+				const defaultBranch = meta?.default_branch ?? "main";
+				const htmlUrl = meta?.html_url ?? `https://github.com/${owner}/${name}`;
+				this.#currentLocation = { kind: "repo", owner, name, defaultBranch, htmlUrl };
+				if (actions) actions.hidden = false;
+				if (zipLink) zipLink.href = `https://github.com/${owner}/${name}/archive/refs/heads/${defaultBranch}.zip`;
+				if (githubLink) githubLink.href = htmlUrl;
+			};
+
+			const gotoRepoPath = async (owner: string, name: string, path: string) => {
+				if (this.#currentLocation.kind !== "repo" || this.#currentLocation.owner !== owner || this.#currentLocation.name !== name) {
+					await openRepo(owner, name);
+				}
+				await openDir(path);
+			};
+
+			const fetchRepoDirs = async (owner: string, name: string, path: string): Promise<TreeChildSpec[]> => {
+				const data = await this.fetchJson(`https://api.github.com/repos/${owner}/${name}/contents/${path}`);
+				if (!Array.isArray(data)) return [];
+				return data
+					.filter((entry: TreeEntry) => entry.type === "dir")
+					.sort((a: TreeEntry, b: TreeEntry) => a.name.localeCompare(b.name))
+					.map((dir: TreeEntry) => ({
+						key: `repo::${owner}/${name}::${dir.path}`,
+						label: dir.name,
+						onSelect: () => pushHistory(() => gotoRepoPath(owner, name, dir.path)),
+						onExpand: () => fetchRepoDirs(owner, name, dir.path),
+					}));
+			};
+
+			const createTreeNode = (spec: TreeChildSpec, depth: number): HTMLElement => {
+				const wrapper = document.createElement("div");
+				wrapper.className = "ghb__tree-node";
+
+				const row = document.createElement("div");
+				row.className = "ghb__tree-row";
+				row.style.paddingLeft = `${6 + depth * 14}px`;
+
+				const chevron = document.createElement("button");
+				chevron.type = "button";
+				chevron.className = "ghb__tree-chevron";
+				chevron.setAttribute("aria-label", "Map uitklappen");
+				if (!spec.onExpand) chevron.classList.add("is-empty");
+
+				const icon = document.createElement("span");
+				icon.className = "tile-folder-icon-sm";
+				icon.setAttribute("aria-hidden", "true");
+
+				const text = document.createElement("button");
+				text.type = "button";
+				text.className = "ghb__tree-label";
+				text.textContent = spec.label;
+
+				row.append(chevron, icon, text);
+
+				const children = document.createElement("div");
+				children.className = "ghb__tree-children";
+				children.hidden = true;
+
+				wrapper.append(row, children);
+				treeRows.set(spec.key, row);
+
+				let loaded = false;
+				const toggle = async () => {
+					if (!spec.onExpand) return;
+					const opening = children.hidden;
+					children.hidden = !opening;
+					chevron.classList.toggle("is-open", opening);
+					if (!opening || loaded) return;
+					loaded = true;
+					const childSpecs = await spec.onExpand();
+					if (childSpecs.length === 0) { chevron.classList.add("is-empty"); return; }
+					for (const child of childSpecs) children.append(createTreeNode(child, depth + 1));
+				};
+				chevron.addEventListener("click", (event) => { event.stopPropagation(); toggle(); });
+				text.addEventListener("click", () => spec.onSelect());
+
+				return wrapper;
+			};
+
+			const buildTree = () => {
+				if (!treeEl) return;
+				treeEl.innerHTML = "";
+				treeRows.clear();
+
+				if (this.#documents.length > 0) {
+					const heading = document.createElement("div");
+					heading.className = "ghb__sidebar-heading";
+					heading.textContent = "Snelkoppelingen";
+					treeEl.append(heading);
+					treeEl.append(createTreeNode({ key: "documents", label: "Mijn documenten", onSelect: () => pushHistory(openDocuments) }, 0));
+				}
+
+				if (this.#repos.length > 0) {
+					const heading = document.createElement("div");
+					heading.className = "ghb__sidebar-heading";
+					heading.textContent = "Repositories";
+					treeEl.append(heading);
+					for (const repo of this.#repos) {
+						treeEl.append(createTreeNode({
+							key: `repo::${repo.owner}/${repo.name}::`,
+							label: repo.name,
+							onSelect: () => pushHistory(() => gotoRepoPath(repo.owner, repo.name, "")),
+							onExpand: () => fetchRepoDirs(repo.owner, repo.name, ""),
+						}, 0));
+					}
+				}
+			};
+
+			cloneBtn?.addEventListener("click", async () => {
+				if (this.#currentLocation.kind !== "repo") return;
+				const command = `git clone https://github.com/${this.#currentLocation.owner}/${this.#currentLocation.name}.git`;
+				try {
+					await navigator.clipboard.writeText(command);
+					setStatus("Clone-commando gekopieerd naar klembord");
+				} catch {
+					setStatus(command);
+				}
+			});
+
+			backBtn?.addEventListener("click", () => {
+				if (viewer && !viewer.hidden) {
+					this.#history[this.#historyIndex]?.();
+					updateNavButtons();
+					return;
+				}
+				if (this.#historyIndex > 0) {
+					this.#historyIndex--;
+					this.#history[this.#historyIndex]?.();
+					updateNavButtons();
+				}
+			});
+			forwardBtn?.addEventListener("click", () => {
+				if (this.#historyIndex < this.#history.length - 1) {
+					this.#historyIndex++;
+					this.#history[this.#historyIndex]?.();
+					updateNavButtons();
+				}
+			});
+			refreshBtn?.addEventListener("click", () => {
+				this.#cache.clear();
+				this.#history[this.#historyIndex]?.();
+			});
+			searchEl?.addEventListener("input", () => {
+				if (!grid) return;
+				const query = searchEl.value.trim().toLowerCase();
+				for (const tile of grid.querySelectorAll<HTMLElement>(".ghb__tile")) {
+					const name = tile.querySelector("strong")?.textContent?.toLowerCase() ?? "";
+					tile.hidden = query.length > 0 && !name.includes(query);
+				}
+			});
+
+			buildTree();
+			this.#history = [showRoot];
+			this.#historyIndex = 0;
+			showRoot();
+			updateNavButtons();
+		}
+
+		setupWindowControls() {
+			const root = this;
+
+			root.querySelector<HTMLButtonElement>("[data-ghb-close]")?.addEventListener("click", () => {
+				root.hidden = true;
+			});
+			root.querySelector<HTMLButtonElement>("[data-ghb-min]")?.addEventListener("click", () => {
+				root.classList.add("is-minimized");
+				this.#taskButton?.classList.remove("is-active");
+			});
+			root.querySelector<HTMLButtonElement>("[data-ghb-restore]")?.addEventListener("click", () => {
+				root.classList.toggle("is-maximized");
+				root.classList.remove("is-minimized");
+				this.raiseSelf();
+			});
+			root.addEventListener("pointerdown", () => this.raiseSelf());
+
+			const ensureTaskButton = () => {
+				if (this.#taskButton) return;
+				const taskbar = document.querySelector<HTMLElement>("#taskbar-running");
+				if (!taskbar) return;
+				const button = document.createElement("button");
+				button.type = "button";
+				button.className = "taskbar-window-button";
+				button.innerHTML = `<span aria-hidden="true">▣</span><span>Verkenner</span>`;
+				button.title = "Verkenner";
+				button.addEventListener("click", () => {
+					const isActive = button.classList.contains("is-active");
+					if (!root.hidden && !root.classList.contains("is-minimized") && isActive) {
+						root.classList.add("is-minimized");
+						button.classList.remove("is-active");
+						return;
+					}
+					root.hidden = false;
+					root.classList.remove("is-minimized");
+					this.raiseSelf();
+				});
+				taskbar.append(button);
+				this.#taskButton = button;
+			};
+
+			const observer = new MutationObserver(() => {
+				if (root.hidden) {
+					this.#taskButton?.remove();
+					this.#taskButton = null;
+					root.classList.remove("is-minimized", "is-maximized");
+				} else {
+					ensureTaskButton();
+					this.raiseSelf();
+				}
+			});
+			observer.observe(root, { attributes: true, attributeFilter: ["hidden"] });
+
+			if (!root.hidden) ensureTaskButton();
+		}
+
+		raiseSelf() {
+			this.#zLayer += 1;
+			this.style.zIndex = String(this.#zLayer);
+			this.#taskButton?.classList.toggle("is-active", !this.hidden && !this.classList.contains("is-minimized"));
+		}
+
+		setupDrag() {
+			const root = this;
+			const handle = root.querySelector<HTMLElement>("[data-ghb-drag-handle]");
+			handle?.addEventListener("pointerdown", (event) => {
+				if ((event.target as HTMLElement).closest("button")) return;
+				const rect = root.getBoundingClientRect();
+				const startLeft = rect.left;
+				const startTop = rect.top;
+				const startX = event.clientX;
+				const startY = event.clientY;
+				root.style.left = `${startLeft}px`;
+				root.style.top = `${startTop}px`;
+				handle.setPointerCapture(event.pointerId);
+				const move = (moveEvent: PointerEvent) => {
+					root.style.left = `${startLeft + moveEvent.clientX - startX}px`;
+					root.style.top = `${startTop + moveEvent.clientY - startY}px`;
+				};
+				handle.addEventListener("pointermove", move);
+				handle.addEventListener("pointerup", () => handle.removeEventListener("pointermove", move), { once: true });
+			});
+		}
+	}
+
+	if (!customElements.get("explorer-app")) customElements.define("explorer-app", ExplorerApp);
+</script>
+
+<style>
+	/* Same Frutiger Aero glass chrome as EnergyPlayerApp: translucent blue/violet
+	   gradients, backdrop blur, organic aero traffic-light buttons, light/dark palette. */
+	.ghb {
+		--ink: #14345c;
+		position: fixed;
+		top: 4rem;
+		left: calc(50% - 380px);
+		z-index: 1950;
+		display: flex;
+		flex-direction: column;
+		width: 760px;
+		height: 540px;
+		overflow: hidden;
+		border: 1px solid rgb(255 255 255 / 80%);
+		border-radius: 1.1rem;
+		background: linear-gradient(135deg, rgb(80 193 235 / 34%), rgb(232 184 255 / 28%));
+		box-shadow:
+			inset 1px 1px 1px rgb(255 255 255 / 88%),
+			inset -1px -1px 2px rgb(38 79 111 / 24%),
+			0 24px 55px rgb(28 83 126 / 26%);
+		backdrop-filter: blur(18px) saturate(150%);
+		font-family: "Segoe UI", system-ui, sans-serif;
+		color: var(--ink);
+	}
+	.ghb[hidden] { display: none; }
+	.ghb.is-minimized { display: none; }
+	.ghb.is-maximized {
+		position: fixed !important;
+		inset: 0 0 3.1rem 0 !important;
+		left: 0 !important;
+		top: 0 !important;
+		width: 100vw !important;
+		height: calc(100vh - 3.1rem) !important;
+		border-radius: 0 !important;
+	}
+	:global([data-theme="dark"]) .ghb {
+		--ink: #e8faff;
+		border-color: rgb(142 226 255 / 26%);
+		background: linear-gradient(135deg, rgb(18 132 177 / 58%), rgb(67 67 171 / 52%), rgb(125 48 137 / 48%));
+		box-shadow: inset 1px 1px 1px rgb(217 250 255 / 18%), 0 24px 55px rgb(0 0 0 / 45%);
+	}
+
+	.ghb__titlebar {
+		position: relative;
+		display: flex;
+		flex: none;
+		align-items: center;
+		gap: 8px;
+		height: 34px;
+		padding: 0 10px;
+		border-bottom: 1px solid rgb(83 145 178 / 32%);
+		background: linear-gradient(180deg, rgb(255 255 255 / 64%), rgb(150 224 248 / 36%));
+		box-shadow: inset 0 1px 0 rgb(255 255 255 / 95%);
+		cursor: grab;
+	}
+	.ghb__titlebar::before {
+		content: "";
+		position: absolute;
+		inset: 1px 10px auto;
+		height: 45%;
+		border-radius: 999px;
+		background: linear-gradient(180deg, rgb(255 255 255 / 45%), transparent);
+		pointer-events: none;
+	}
+	.ghb__titlebar:active { cursor: grabbing; }
+	:global([data-theme="dark"]) .ghb__titlebar { border-bottom-color: rgb(160 226 255 / 20%); background: linear-gradient(180deg, rgb(132 226 255 / 34%), rgb(47 97 160 / 52%), rgb(83 48 137 / 48%)); }
+	.ghb__titlebar-icon { position: relative; z-index: 1; display: grid; place-items: center; width: 16px; height: 16px; color: var(--ink); font-size: 11px; text-shadow: 0 1px 0 rgb(255 255 255 / 75%); }
+	.ghb__titlebar-text { position: relative; z-index: 1; flex: 1; overflow: hidden; color: var(--ink); font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 0 rgb(255 255 255 / 75%); }
+	:global([data-theme="dark"]) .ghb__titlebar-icon,
+	:global([data-theme="dark"]) .ghb__titlebar-text { text-shadow: 0 1px 1px rgb(0 0 0 / 65%); }
+	.ghb__capbtns { position: relative; z-index: 1; display: flex; flex: none; gap: 8px; }
+	.ghb__capbtn {
+		position: relative;
+		width: 18px;
+		height: 18px;
+		border: 1px solid rgb(0 0 0 / 18%);
+		border-radius: 50% 46% 50% 44%;
+		background: radial-gradient(circle at 35% 24%, #effcff, #8dd9ed 48%, #5785b6);
+		box-shadow: inset 0 2px 2px rgb(255 255 255 / 78%), inset 0 -2px 3px rgb(0 0 0 / 12%), 0 2px 4px rgb(0 0 0 / 20%);
+		padding: 0;
+		cursor: pointer;
+		transition: transform .15s ease, filter .15s ease;
+	}
+	.ghb__capbtn:hover { filter: brightness(1.08) saturate(1.15); transform: scale(1.08); }
+	.ghb__capbtn::before,
+	.ghb__capbtn::after {
+		content: "";
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 8px;
+		height: 1px;
+		border-radius: 2px;
+		background: rgb(38 55 63 / 72%);
+		transform: translate(-50%, -50%);
+	}
+	.ghb__capbtn--min::before { top: 62%; }
+	.ghb__capbtn--min::after { display: none; }
+	.ghb__capbtn--restore::before { width: 7px; height: 6px; border: 1px solid rgb(38 55 63 / 68%); background: transparent; }
+	.ghb__capbtn--restore::after { display: none; }
+	.ghb__capbtn--close { background: radial-gradient(circle at 35% 24%, #ffd8d8, #ea8d8d 48%, #b23f3f); }
+	.ghb__capbtn--close::before { transform: translate(-50%, -50%) rotate(45deg); }
+	.ghb__capbtn--close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+	.ghb__toolbar {
+		display: flex;
+		flex: none;
+		align-items: center;
+		gap: 8px;
+		padding: 8px 10px;
+		background: linear-gradient(180deg, rgb(255 255 255 / 55%), rgb(200 235 250 / 30%));
+		border-bottom: 1px solid rgb(83 145 178 / 24%);
+	}
+	:global([data-theme="dark"]) .ghb__toolbar { background: linear-gradient(180deg, rgb(132 226 255 / 14%), rgb(47 97 160 / 20%)); border-bottom-color: rgb(160 226 255 / 16%); }
+
+	.ghb__navbtn {
+		position: relative;
+		display: grid;
+		flex: none;
+		place-items: center;
+		width: 26px;
+		height: 26px;
+		border: 1px solid rgb(80 155 192 / 40%);
+		border-radius: 50%;
+		background: linear-gradient(180deg, rgb(255 255 255 / 84%), rgb(177 228 247 / 62%));
+		box-shadow: inset 0 1px 0 rgb(255 255 255 / 90%), 0 2px 4px rgb(38 100 130 / 14%);
+		color: var(--ink);
+		font-size: 12px;
+		cursor: pointer;
+	}
+	.ghb__navbtn:disabled { opacity: .35; cursor: not-allowed; }
+	.ghb__navbtn:not(:disabled):hover { filter: brightness(1.05) saturate(1.15); }
+	:global([data-theme="dark"]) .ghb__navbtn { border-color: rgb(142 226 255 / 28%); background: linear-gradient(180deg, rgb(217 250 255 / 22%), rgb(150 120 230 / 22%)); }
+	.ghb__navbtn--back::before,
+	.ghb__navbtn--forward::before {
+		content: "";
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 0;
+		height: 0;
+		border-style: solid;
+	}
+	.ghb__navbtn--back::before { border-width: 4px 5px 4px 0; border-color: transparent var(--ink) transparent transparent; transform: translate(-30%, -50%); }
+	.ghb__navbtn--back:disabled::before { border-right-color: rgb(20 52 92 / 35%); }
+	:global([data-theme="dark"]) .ghb__navbtn--back:disabled::before { border-right-color: rgb(232 250 255 / 35%); }
+	.ghb__navbtn--forward::before { border-width: 4px 0 4px 5px; border-color: transparent transparent transparent var(--ink); transform: translate(-70%, -50%); }
+	.ghb__navbtn--forward:disabled::before { border-left-color: rgb(20 52 92 / 35%); }
+	:global([data-theme="dark"]) .ghb__navbtn--forward:disabled::before { border-left-color: rgb(232 250 255 / 35%); }
+
+	.ghb__addressbar {
+		display: flex;
+		flex: 1;
+		align-items: center;
+		gap: 5px;
+		min-width: 0;
+		padding: 5px 10px;
+		border: 1px solid rgb(80 155 192 / 35%);
+		border-radius: .9rem;
+		background: rgb(255 255 255 / 55%);
+		box-shadow: inset 0 1px 3px rgb(20 60 90 / 10%);
+	}
+	:global([data-theme="dark"]) .ghb__addressbar { border-color: rgb(142 226 255 / 22%); background: rgb(8 26 46 / 35%); }
+	.ghb__addressbar-icon { flex: none; font-size: 11px; }
+
+	.ghb__breadcrumb { display: flex; flex: 1; align-items: center; overflow: hidden; gap: 3px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+	.ghb__breadcrumb :global(strong) { overflow: hidden; text-overflow: ellipsis; }
+	.ghb__breadcrumb :global(button) { border: 0; background: transparent; color: #2a6fd6; font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+	:global([data-theme="dark"]) .ghb__breadcrumb :global(button) { color: #7dd8ff; }
+
+	.ghb__search {
+		flex: none;
+		width: 140px;
+		padding: 5px 10px;
+		border: 1px solid rgb(80 155 192 / 35%);
+		border-radius: .9rem;
+		background: rgb(255 255 255 / 55%);
+		box-shadow: inset 0 1px 3px rgb(20 60 90 / 10%);
+		color: var(--ink);
+		font-size: 11px;
+	}
+	.ghb__search::placeholder { color: rgb(20 52 92 / 45%); }
+	:global([data-theme="dark"]) .ghb__search { border-color: rgb(142 226 255 / 22%); background: rgb(8 26 46 / 35%); color: #e8faff; }
+	:global([data-theme="dark"]) .ghb__search::placeholder { color: rgb(232 250 255 / 45%); }
+
+	.ghb__actionbar { display: flex; flex: none; gap: 6px; padding: 0 10px 8px; }
+	.ghb__actionbar[hidden] { display: none; }
+	.ghb__actionbar button,
+	.ghb__actionbar a {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		padding: 5px 9px;
+		border: 1px solid rgb(80 155 192 / 48%);
+		border-radius: .5rem;
+		background: linear-gradient(180deg, rgb(255 255 255 / 84%), rgb(177 228 247 / 62%));
+		box-shadow: inset 0 1px 0 rgb(255 255 255 / 90%), 0 2px 5px rgb(38 100 130 / 14%);
+		color: var(--ink);
+		font-size: 11px;
+		font-weight: 700;
+		text-decoration: none;
+		cursor: pointer;
+	}
+	.ghb__actionbar button:hover,
+	.ghb__actionbar a:hover { filter: brightness(1.05) saturate(1.15); }
+	:global([data-theme="dark"]) .ghb__actionbar button,
+	:global([data-theme="dark"]) .ghb__actionbar a { border-color: rgb(142 226 255 / 30%); background: linear-gradient(180deg, rgb(217 250 255 / 22%), rgb(150 120 230 / 22%)); }
+
+	.ghb__body { display: flex; flex: 1; min-height: 0; }
+
+	.ghb__sidebar {
+		display: flex;
+		flex: none;
+		flex-direction: column;
+		width: 190px;
+		overflow-y: auto;
+		padding: 8px 0;
+		border-right: 1px solid rgb(255 255 255 / 45%);
+		background: linear-gradient(180deg, rgb(255 255 255 / 55%), rgb(196 245 255 / 30%));
+	}
+	:global([data-theme="dark"]) .ghb__sidebar { border-right-color: rgb(142 226 255 / 20%); background: linear-gradient(180deg, rgb(23 103 139 / 35%), rgb(73 48 130 / 35%)); }
+	.ghb__tree :global(.ghb__sidebar-heading) { padding: 8px 10px 4px; color: rgb(20 52 92 / 55%); font-size: 10px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+	.ghb__tree :global(.ghb__sidebar-heading:first-child) { padding-top: 2px; }
+	:global([data-theme="dark"]) .ghb__tree :global(.ghb__sidebar-heading) { color: rgb(232 250 255 / 55%); }
+
+	.ghb__tree :global(.ghb__tree-row) { display: flex; align-items: center; gap: 5px; padding: 4px 8px 4px 6px; margin: 0 4px; border-radius: .4rem; cursor: pointer; }
+	.ghb__tree :global(.ghb__tree-row:hover) { background: rgb(255 255 255 / 35%); }
+	:global([data-theme="dark"]) .ghb__tree :global(.ghb__tree-row:hover) { background: rgb(255 255 255 / 10%); }
+	.ghb__tree :global(.ghb__tree-row.is-active) { background: linear-gradient(135deg, rgb(80 193 235 / 65%), rgb(124 88 211 / 60%)); }
+	.ghb__tree :global(.ghb__tree-row.is-active .ghb__tree-label) { color: #fff; font-weight: 700; }
+	.ghb__tree :global(.ghb__tree-chevron) {
+		position: relative;
+		flex: none;
+		width: 13px;
+		height: 13px;
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+	}
+	.ghb__tree :global(.ghb__tree-chevron)::before {
+		content: "";
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 0;
+		height: 0;
+		border-style: solid;
+		border-width: 4px 0 4px 6px;
+		border-color: transparent transparent transparent var(--ink);
+		transform: translate(-45%, -50%);
+		transition: transform .15s ease;
+	}
+	.ghb__tree :global(.ghb__tree-chevron.is-open)::before { transform: translate(-50%, -50%) rotate(90deg); }
+	.ghb__tree :global(.ghb__tree-chevron.is-empty) { visibility: hidden; }
+	.ghb__tree :global(.ghb__tree-label) { flex: 1; overflow: hidden; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 11px; text-align: left; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+
+	.ghb__content { position: relative; flex: 1; min-width: 0; overflow: auto; padding: 12px; }
+
+	.ghb__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; align-content: start; }
+	.ghb__grid[hidden] { display: none; }
+	.ghb__grid :global(.ghb__group-heading) { grid-column: 1 / -1; margin: 6px 2px 0; color: rgb(20 52 92 / 55%); font-size: 10px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+	.ghb__grid :global(.ghb__group-heading:first-child) { margin-top: 0; }
+	:global([data-theme="dark"]) .ghb__grid :global(.ghb__group-heading) { color: rgb(232 250 255 / 55%); }
+	.ghb__grid :global(.ghb__tile) {
+		display: grid;
+		grid-template-rows: 2.4rem auto auto;
+		place-items: center;
+		gap: 4px;
+		padding: 10px 6px;
+		border: 1px solid transparent;
+		border-radius: .65rem;
+		background: transparent;
+		color: var(--ink);
+		font-family: inherit;
+		text-align: center;
+		cursor: pointer;
+	}
+	.ghb__grid :global(.ghb__tile[hidden]) { display: none; }
+	.ghb__grid :global(.ghb__tile:hover),
+	.ghb__grid :global(.ghb__tile:focus-visible) { border-color: rgb(80 155 192 / 40%); background: rgb(255 255 255 / 40%); outline: none; }
+	:global([data-theme="dark"]) .ghb__grid :global(.ghb__tile:hover),
+	:global([data-theme="dark"]) .ghb__grid :global(.ghb__tile:focus-visible) { background: rgb(255 255 255 / 10%); }
+	.ghb__grid :global(.ghb__tile strong) { max-width: 100%; overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+	.ghb__grid :global(.ghb__tile small) { color: rgb(20 52 92 / 55%); font-size: 9px; }
+	:global([data-theme="dark"]) .ghb__grid :global(.ghb__tile small) { color: rgb(232 250 255 / 55%); }
+
+	.ghb__message { margin: 2rem auto; color: rgb(20 52 92 / 65%); font-size: 12px; text-align: center; }
+	:global([data-theme="dark"]) .ghb__message { color: rgb(232 250 255 / 65%); }
+
+	.ghb__viewer { display: flex; flex-direction: column; height: 100%; }
+	.ghb__viewer[hidden] { display: none; }
+	.ghb__viewer-head { flex: none; margin-bottom: 8px; font-size: 12px; font-weight: 700; }
+	.ghb__viewer-scroll { flex: 1; min-height: 0; overflow: auto; border: 1px solid rgb(80 155 192 / 30%); border-radius: .65rem; background: rgb(255 255 255 / 55%); }
+	:global([data-theme="dark"]) .ghb__viewer-scroll { background: rgb(8 26 46 / 55%); border-color: rgb(142 226 255 / 20%); }
+	.ghb__viewer-content { margin: 0; padding: 10px 12px; color: var(--ink); font-family: "Consolas", "SFMono-Regular", monospace; font-size: 11.5px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+	.ghb__viewer-scroll :global(.ghb__viewer-image) { display: block; max-width: 100%; margin: 12px auto; }
+
+	.ghb__statusbar {
+		display: flex;
+		flex: none;
+		align-items: center;
+		height: 20px;
+		padding: 0 10px;
+		background: linear-gradient(180deg, rgb(255 255 255 / 55%), rgb(196 245 255 / 30%));
+		border-top: 1px solid rgb(83 145 178 / 24%);
+		color: rgb(20 52 92 / 70%);
+		font-size: 10px;
+	}
+	:global([data-theme="dark"]) .ghb__statusbar { background: linear-gradient(180deg, rgb(23 103 139 / 45%), rgb(73 48 130 / 45%)); border-top-color: rgb(142 226 255 / 16%); color: rgb(232 250 255 / 70%); }
+
+	@media (max-width: 820px) {
+		.ghb { left: calc(50% - 304px); transform: scale(.8); transform-origin: top center; }
+	}
+</style>

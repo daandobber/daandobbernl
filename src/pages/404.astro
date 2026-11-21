@@ -1,5 +1,5 @@
 ---
-import PageLayout from "@/layouts/Base.astro";
+import BaseHead from "@/components/BaseHead.astro";
 
 const meta = {
 	description: "De pagina bestaat niet",
@@ -7,7 +7,64 @@ const meta = {
 };
 ---
 
-<PageLayout meta={meta}>
-	<h1 class="title mb-6">404 | Oh nee wat erg, deze pagina bestaat niet</h1>
-	<p class="mb-8">Druk gewoon ergens in het menu ofzo</p>
-</PageLayout>
+<html lang="nl-NL">
+	<head>
+		<BaseHead description={meta.description} title={meta.title} />
+	</head>
+	<body class="bsod">
+		<div class="bsod__frown" aria-hidden="true">:(</div>
+		<p class="bsod__lead">Uw browser heeft een probleem ondervonden en deze pagina is afgesloten om schade aan uw bezoekervaring te voorkomen.</p>
+
+		<p>De pagina die u zoekt bestaat niet, of heeft nooit bestaan.</p>
+
+		<p>&nbsp;</p>
+		<p>Technische informatie:</p>
+		<p>&nbsp;</p>
+		<p>*** STOP: 0x00000404 (0xPAGE_NOT_FOUND, 0x00000000, 0x00000000, 0x00000000)</p>
+		<p>*** daandobber.nl - address FFFFFFFF base at FFFFFFFF, DateStamp 19700101</p>
+		<p>&nbsp;</p>
+
+		<p>Probeer de volgende stappen:</p>
+		<p>* Controleer of u de juiste link heeft getypt</p>
+		<p>* Ga terug naar het bureaublad en klik ergens anders op</p>
+		<p>* Blijf hier gewoon nog even naar dit scherm staren, ook goed</p>
+		<p>&nbsp;</p>
+		<p class="bsod__blink">Druk op een willekeurige toets om opnieuw op te starten . . .</p>
+
+		<script is:inline>
+			const restart = () => { window.location.href = "/"; };
+			document.addEventListener("keydown", restart, { once: true });
+			document.addEventListener("pointerdown", restart, { once: true });
+		</script>
+
+		<style>
+			html, body {
+				height: 100%;
+				margin: 0;
+			}
+			.bsod {
+				display: flex;
+				min-height: 100vh;
+				flex-direction: column;
+				gap: .15em;
+				box-sizing: border-box;
+				padding: 4rem 6rem;
+				background: #0000ab;
+				color: #fff;
+				cursor: default;
+				font-family: "Consolas", "Lucida Console", "Courier New", monospace;
+				font-size: 1.05rem;
+				line-height: 1.5;
+			}
+			.bsod__frown { margin: 0 0 .3em; font-size: 4rem; font-weight: 700; line-height: 1; }
+			.bsod__lead { max-width: 44ch; margin: 0 0 1.2em; }
+			.bsod__blink { animation: bsod-blink 1s steps(1) infinite; }
+			@keyframes bsod-blink {
+				50% { opacity: 0; }
+			}
+			@media (max-width: 640px) {
+				.bsod { padding: 2.5rem 1.5rem; font-size: .9rem; }
+			}
+		</style>
+	</body>
+</html>

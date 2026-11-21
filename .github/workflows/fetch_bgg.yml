@@ -21,22 +21,20 @@ jobs:
           python-version: '3.x'
 
       - name: Install Python dependencies
-        run: pip install requests
+        run: pip install requests python-dotenv pillow numpy
 
-      - name: Run Python script to fetch BGG data
+      - name: Update bordspellenkast (collectie, covers, maten, zijkanten)
         env:
           BGG_USERNAME: ${{ secrets.BGG_USERNAME }}
-        # BELANGRIJK: Controleer dit pad!
-        # Aanname: Je hebt fetch_bgg_collection.py nu ook in de 'scripts' map gezet voor consistentie.
-        # Als het nog in de root staat, gebruik: python fetch_bgg_collection.py
-        run: python scripts/fetch_bgg_collection.py
+          BGG_API_TOKEN: ${{ secrets.BGG_API_TOKEN }}
+        run: python scripts/update_bordspellen.py
 
       - name: Commit and push if BGG data changed
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: Update BGG collection data"
-          # Alleen het BGG JSON bestand committen
-          file_pattern: "src/data/bgg_collection.json"
+          # De BGG-data plus nieuwe covers en zijkanten van de bordspellenkast
+          file_pattern: "src/data/bgg_*.json src/assets/bordspellen/**"
           commit_user_name: "GitHub Actions Bot"
           commit_user_email: "actions@github.com"
           commit_author: "GitHub Actions Bot <actions@github.com>"

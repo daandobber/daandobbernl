@@ -1,0 +1,543 @@
+---
+import { PUBLIC_MATRIX_BOT_TOKEN, PUBLIC_MATRIX_HOMESERVER, PUBLIC_MATRIX_OWNER_ID } from "astro:env/client";
+---
+
+<msn-messenger-app
+	class="msn"
+	data-app="msn"
+	hidden
+	data-homeserver={PUBLIC_MATRIX_HOMESERVER ?? ""}
+	data-bot-token={PUBLIC_MATRIX_BOT_TOKEN ?? ""}
+	data-owner-id={PUBLIC_MATRIX_OWNER_ID ?? ""}
+>
+	<div class="msn__titlebar" data-msn-drag-handle>
+		<div class="msn__titlebar-icon" aria-hidden="true">💬</div>
+		<span class="msn__titlebar-text" data-msn-title>Gesprek met Daan</span>
+		<div class="msn__capbtns">
+			<button type="button" class="msn__capbtn msn__capbtn--min" data-msn-min aria-label="Minimaliseren"></button>
+			<button type="button" class="msn__capbtn msn__capbtn--restore" data-msn-restore aria-label="Herstellen"></button>
+			<button type="button" class="msn__capbtn msn__capbtn--close" data-msn-close aria-label="Sluiten"></button>
+		</div>
+	</div>
+
+	<div class="msn__menubar" aria-hidden="true">
+		<span>Bestand</span><span>Bewerken</span><span>Acties</span><span>Extra</span><span>Help</span>
+	</div>
+
+	<div class="msn__body">
+		<aside class="msn__sidebar">
+			<div class="msn__contact">
+				<img class="msn__contact-avatar" src="/daan-avatar.jpg" alt="" aria-hidden="true" />
+				<span class="msn__contact-name">Daan<br /><small data-msn-status>● Online</small></span>
+			</div>
+		</aside>
+
+		<div class="msn__conversation">
+			<div class="msn__signin" data-msn-signin>
+				<p>Kies een beeldnaam om te chatten met Daan:</p>
+				<input type="text" data-msn-nickname placeholder="Jouw naam..." maxlength="24" autocomplete="off" />
+				<button type="button" data-msn-signin-btn>Chatten starten →</button>
+				<small class="msn__privacy-note">Je (geschatte) IP-adres wordt bij het starten van een gesprek gedeeld met Daan.</small>
+			</div>
+
+			<div class="msn__history" data-msn-history hidden></div>
+
+			<div class="msn__composer" data-msn-composer hidden>
+				<div class="msn__emoticons">
+					<button type="button" data-msn-emo="🙂" aria-label="Smiley">🙂</button>
+					<button type="button" data-msn-emo="😉" aria-label="Knipoog">😉</button>
+					<button type="button" data-msn-emo="😂" aria-label="Lachen">😂</button>
+					<button type="button" data-msn-emo="❤️" aria-label="Hartje">❤️</button>
+					<button type="button" class="msn__nudge" data-msn-nudge>👊 Nudge!</button>
+				</div>
+				<div class="msn__input-row">
+					<textarea data-msn-input rows="2" placeholder="Typ een bericht..."></textarea>
+					<button type="button" data-msn-send>Verzenden</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="msn__statusbar" data-msn-statusbar>Gereed</div>
+</msn-messenger-app>
+
+<script>
+	interface MatrixMessageEvent {
+		type: string;
+		sender: string;
+		origin_server_ts: number;
+		content?: { body?: string; msgtype?: string };
+	}
+
+	class MsnMessengerApp extends HTMLElement {
+		#taskButton: HTMLButtonElement | null = null;
+		#zLayer = 1960;
+		#pollTimer: number | undefined;
+		#roomId: string | null = null;
+		#visitorIp: string | null = null;
+		#nickname = "";
+		#homeserver = "";
+		#botToken = "";
+		#ownerId = "";
+
+		connectedCallback() {
+			if (window.self !== window.top) return;
+			this.#homeserver = (this.dataset.homeserver ?? "").replace(/\/$/, "");
+			this.#botToken = this.dataset.botToken ?? "";
+			this.#ownerId = this.dataset.ownerId ?? "";
+			this.setupWindowControls();
+			this.setupDrag();
+			this.setupChat();
+		}
+
+		disconnectedCallback() {
+			this.stopPolling();
+		}
+
+		setupWindowControls() {
+			const root = this;
+
+			root.querySelector<HTMLButtonElement>("[data-msn-close]")?.addEventListener("click", () => {
+				root.hidden = true;
+			});
+			root.querySelector<HTMLButtonElement>("[data-msn-min]")?.addEventListener("click", () => {
+				root.classList.add("is-minimized");
+				this.#taskButton?.classList.remove("is-active");
+			});
+			root.querySelector<HTMLButtonElement>("[data-msn-restore]")?.addEventListener("click", () => {
+				root.classList.toggle("is-maximized");
+				root.classList.remove("is-minimized");
+				this.raiseSelf();
+			});
+			root.addEventListener("pointerdown", () => this.raiseSelf());
+
+			const ensureTaskButton = () => {
+				if (this.#taskButton) return;
+				const taskbar = document.querySelector<HTMLElement>("#taskbar-running");
+				if (!taskbar) return;
+				const button = document.createElement("button");
+				button.type = "button";
+				button.className = "taskbar-window-button";
+				button.innerHTML = `<span aria-hidden="true">💬</span><span>Contact</span>`;
+				button.title = "Contact";
+				button.addEventListener("click", () => {
+					const isActive = button.classList.contains("is-active");
+					if (!root.hidden && !root.classList.contains("is-minimized") && isActive) {
+						root.classList.add("is-minimized");
+						button.classList.remove("is-active");
+						return;
+					}
+					root.hidden = false;
+					root.classList.remove("is-minimized");
+					this.raiseSelf();
+				});
+				taskbar.append(button);
+				this.#taskButton = button;
+			};
+
+			const observer = new MutationObserver(() => {
+				if (root.hidden) {
+					this.#taskButton?.remove();
+					this.#taskButton = null;
+					root.classList.remove("is-minimized", "is-maximized");
+					this.stopPolling();
+				} else {
+					ensureTaskButton();
+					this.raiseSelf();
+					if (this.#roomId) {
+						this.startPolling();
+						void this.fetchMessages();
+					}
+				}
+			});
+			observer.observe(root, { attributes: true, attributeFilter: ["hidden"] });
+
+			if (!root.hidden) ensureTaskButton();
+		}
+
+		raiseSelf() {
+			this.#zLayer += 1;
+			this.style.zIndex = String(this.#zLayer);
+			this.#taskButton?.classList.toggle("is-active", !this.hidden && !this.classList.contains("is-minimized"));
+		}
+
+		setupDrag() {
+			const root = this;
+			const handle = root.querySelector<HTMLElement>("[data-msn-drag-handle]");
+			handle?.addEventListener("pointerdown", (event) => {
+				if ((event.target as HTMLElement).closest("button")) return;
+				const rect = root.getBoundingClientRect();
+				const startLeft = rect.left;
+				const startTop = rect.top;
+				const startX = event.clientX;
+				const startY = event.clientY;
+				root.style.left = `${startLeft}px`;
+				root.style.top = `${startTop}px`;
+				handle.setPointerCapture(event.pointerId);
+				const move = (moveEvent: PointerEvent) => {
+					root.style.left = `${startLeft + moveEvent.clientX - startX}px`;
+					root.style.top = `${startTop + moveEvent.clientY - startY}px`;
+				};
+				handle.addEventListener("pointermove", move);
+				handle.addEventListener("pointerup", () => handle.removeEventListener("pointermove", move), { once: true });
+			});
+		}
+
+		setupChat() {
+			const root = this;
+			const signin = root.querySelector<HTMLElement>("[data-msn-signin]")!;
+			const nicknameInput = root.querySelector<HTMLInputElement>("[data-msn-nickname]")!;
+			const signinBtn = root.querySelector<HTMLButtonElement>("[data-msn-signin-btn]")!;
+			const history = root.querySelector<HTMLElement>("[data-msn-history]")!;
+			const composer = root.querySelector<HTMLElement>("[data-msn-composer]")!;
+			const input = root.querySelector<HTMLTextAreaElement>("[data-msn-input]")!;
+			const sendBtn = root.querySelector<HTMLButtonElement>("[data-msn-send]")!;
+			const nudgeBtn = root.querySelector<HTMLButtonElement>("[data-msn-nudge]")!;
+			const statusbar = root.querySelector<HTMLElement>("[data-msn-statusbar]")!;
+			const titleEl = root.querySelector<HTMLElement>("[data-msn-title]")!;
+
+			if (!this.#homeserver || !this.#botToken || !this.#ownerId) {
+				statusbar.textContent = "Chat is nog niet ingesteld.";
+				signinBtn.disabled = true;
+				return;
+			}
+
+			try {
+				this.#nickname = localStorage.getItem("msn-nickname") ?? "";
+				this.#roomId = localStorage.getItem("msn-room-id");
+			} catch {
+				/* storage unavailable, ignore */
+			}
+
+			const startChat = () => {
+				signin.hidden = true;
+				history.hidden = false;
+				composer.hidden = false;
+				titleEl.textContent = `Gesprek met Daan — ${this.#nickname}`;
+				if (this.#roomId) {
+					this.startPolling();
+					void this.fetchMessages();
+				}
+				input.focus();
+			};
+
+			if (this.#nickname) {
+				nicknameInput.value = this.#nickname;
+				startChat();
+			}
+
+			signinBtn.addEventListener("click", () => {
+				const name = nicknameInput.value.trim();
+				if (!name) {
+					nicknameInput.focus();
+					return;
+				}
+				this.#nickname = name.slice(0, 24);
+				try {
+					localStorage.setItem("msn-nickname", this.#nickname);
+				} catch {
+					/* storage unavailable, ignore */
+				}
+				startChat();
+			});
+			nicknameInput.addEventListener("keydown", (event) => {
+				if (event.key === "Enter") signinBtn.click();
+			});
+
+			for (const emoBtn of root.querySelectorAll<HTMLButtonElement>("[data-msn-emo]")) {
+				emoBtn.addEventListener("click", () => {
+					input.value += emoBtn.dataset.msnEmo ?? "";
+					input.focus();
+				});
+			}
+
+			const send = async (text: string, isNudge = false) => {
+				if (!text.trim() && !isNudge) return;
+				sendBtn.disabled = true;
+				statusbar.textContent = "Bezig met versturen...";
+				try {
+					const roomId = await this.ensureRoom();
+					const body = isNudge ? `*${this.#nickname} stuurt je een nudge!* 👊` : `${this.#nickname}: ${text.trim()}`;
+					const txnId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+					await this.matrixFetch(`/rooms/${encodeURIComponent(roomId)}/send/m.room.message/${txnId}`, {
+						method: "PUT",
+						body: JSON.stringify({ msgtype: "m.text", body }),
+					});
+					if (isNudge) {
+						root.classList.add("is-nudging");
+						window.setTimeout(() => root.classList.remove("is-nudging"), 620);
+					} else {
+						input.value = "";
+					}
+					statusbar.textContent = "Gereed";
+					this.startPolling();
+					await this.fetchMessages();
+				} catch (error) {
+					console.error("Contact: bericht versturen mislukt", error);
+					statusbar.textContent = "Kon bericht niet versturen — probeer het later opnieuw.";
+				} finally {
+					sendBtn.disabled = false;
+				}
+			};
+
+			sendBtn.addEventListener("click", () => void send(input.value));
+			input.addEventListener("keydown", (event) => {
+				if (event.key === "Enter" && !event.shiftKey) {
+					event.preventDefault();
+					void send(input.value);
+				}
+			});
+			nudgeBtn.addEventListener("click", () => void send("", true));
+		}
+
+		async matrixFetch(path: string, options: RequestInit = {}) {
+			const response = await fetch(`${this.#homeserver}/_matrix/client/v3${path}`, {
+				...options,
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${this.#botToken}`,
+					...(options.headers ?? {}),
+				},
+			});
+			if (!response.ok) throw new Error(`Matrix API ${response.status}`);
+			return response.json();
+		}
+
+		async fetchVisitorIp(): Promise<string | null> {
+			if (this.#visitorIp) return this.#visitorIp;
+			try {
+				const controller = new AbortController();
+				const timeout = window.setTimeout(() => controller.abort(), 4000);
+				const response = await fetch("https://api.ipify.org?format=json", { signal: controller.signal });
+				window.clearTimeout(timeout);
+				if (!response.ok) return null;
+				const data = await response.json();
+				this.#visitorIp = typeof data.ip === "string" ? data.ip : null;
+				return this.#visitorIp;
+			} catch {
+				// Lookup service unreachable/blocked (ad blockers, offline) — chat still works, just without the IP note.
+				return null;
+			}
+		}
+
+		async ensureRoom(): Promise<string> {
+			if (this.#roomId) return this.#roomId;
+			const ip = await this.fetchVisitorIp();
+			const data = await this.matrixFetch("/createRoom", {
+				method: "POST",
+				body: JSON.stringify({
+					visibility: "private",
+					preset: "trusted_private_chat",
+					is_direct: true,
+					invite: [this.#ownerId],
+					name: `Website chat — ${this.#nickname}`,
+					topic: `Bericht via daandobber.nl${ip ? ` — IP: ${ip}` : ""}`,
+				}),
+			});
+			this.#roomId = data.room_id as string;
+			try {
+				localStorage.setItem("msn-room-id", this.#roomId);
+			} catch {
+				/* storage unavailable, ignore */
+			}
+			if (ip) {
+				try {
+					await this.matrixFetch(`/rooms/${encodeURIComponent(this.#roomId)}/send/m.room.message/${Date.now()}-ip`, {
+						method: "PUT",
+						body: JSON.stringify({ msgtype: "m.notice", body: `🌐 Nieuw gesprek — IP van bezoeker: ${ip}` }),
+					});
+				} catch {
+					/* non-critical, ignore */
+				}
+			}
+			return this.#roomId;
+		}
+
+		async fetchMessages() {
+			if (!this.#roomId) return;
+			const history = this.querySelector<HTMLElement>("[data-msn-history]");
+			if (!history) return;
+			try {
+				const data = await this.matrixFetch(`/rooms/${encodeURIComponent(this.#roomId)}/messages?dir=b&limit=60`);
+				const events = ((data.chunk ?? []) as MatrixMessageEvent[])
+					.filter((event) => event.type === "m.room.message" && event.content?.msgtype !== "m.notice")
+					.reverse();
+				history.innerHTML = "";
+				for (const event of events) {
+					const isOwner = event.sender === this.#ownerId;
+					const line = document.createElement("p");
+					line.className = isOwner ? "msn__line msn__line--them" : "msn__line msn__line--me";
+					const time = new Date(event.origin_server_ts).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+					const textSpan = document.createElement("span");
+					textSpan.textContent = event.content?.body ?? "";
+					line.innerHTML = `<span class="msn__line-time">[${time}]</span> `;
+					line.append(textSpan);
+					history.append(line);
+				}
+				history.scrollTop = history.scrollHeight;
+			} catch (error) {
+				console.error("Contact: berichten ophalen mislukt", error);
+			}
+		}
+
+		startPolling() {
+			if (this.#pollTimer !== undefined) return;
+			this.#pollTimer = window.setInterval(() => void this.fetchMessages(), 4000);
+		}
+
+		stopPolling() {
+			if (this.#pollTimer !== undefined) {
+				window.clearInterval(this.#pollTimer);
+				this.#pollTimer = undefined;
+			}
+		}
+	}
+
+	if (!customElements.get("msn-messenger-app")) customElements.define("msn-messenger-app", MsnMessengerApp);
+</script>
+
+<style>
+	.msn {
+		--msn-ink: #1a2b4a;
+		position: fixed;
+		top: 5rem;
+		left: calc(50% - 260px);
+		z-index: 1960;
+		display: flex;
+		flex-direction: column;
+		width: 520px;
+		height: 560px;
+		overflow: hidden;
+		border: 1px solid rgb(120 160 210 / 70%);
+		border-radius: .9rem;
+		background: #eef4fb;
+		box-shadow: 0 24px 55px rgb(20 45 90 / 32%), inset 0 1px 0 rgb(255 255 255 / 80%);
+		font-family: "Segoe UI", system-ui, sans-serif;
+		color: var(--msn-ink);
+	}
+	.msn[hidden] { display: none; }
+	.msn.is-minimized { display: none; }
+	.msn.is-maximized {
+		position: fixed !important;
+		inset: 0 0 3.1rem 0 !important;
+		left: 0 !important;
+		top: 0 !important;
+		width: 100vw !important;
+		height: calc(100vh - 3.1rem) !important;
+		border-radius: 0 !important;
+	}
+	.msn.is-nudging { animation: msn-nudge .55s ease; }
+	@keyframes msn-nudge {
+		0%, 100% { transform: translate(0, 0); }
+		12% { transform: translate(-8px, 3px); }
+		24% { transform: translate(7px, -4px); }
+		36% { transform: translate(-6px, 4px); }
+		48% { transform: translate(6px, -3px); }
+		60% { transform: translate(-4px, 2px); }
+		72% { transform: translate(4px, -2px); }
+		84% { transform: translate(-2px, 1px); }
+	}
+
+	.msn__titlebar {
+		position: relative;
+		display: flex;
+		flex: none;
+		align-items: center;
+		gap: 8px;
+		height: 32px;
+		padding: 0 8px;
+		background: linear-gradient(180deg, #6ea3e6, #2f5fb0 55%, #1f4590);
+		color: #fff;
+		cursor: grab;
+	}
+	.msn__titlebar:active { cursor: grabbing; }
+	.msn__titlebar-icon { display: grid; place-items: center; width: 16px; height: 16px; font-size: 12px; }
+	.msn__titlebar-text { flex: 1; overflow: hidden; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 1px rgb(0 0 0 / 35%); }
+	.msn__capbtns { display: flex; flex: none; gap: 8px; }
+	.msn__capbtn {
+		position: relative;
+		width: 18px;
+		height: 18px;
+		border: 1px solid rgb(0 0 0 / 18%);
+		border-radius: 50% 46% 50% 44%;
+		background: radial-gradient(circle at 35% 24%, #effcff, #8dd9ed 48%, #5785b6);
+		box-shadow: inset 0 2px 2px rgb(255 255 255 / 78%), inset 0 -2px 3px rgb(0 0 0 / 12%), 0 2px 4px rgb(0 0 0 / 20%);
+		padding: 0;
+		cursor: pointer;
+	}
+	.msn__capbtn::before,
+	.msn__capbtn::after {
+		content: "";
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 8px;
+		height: 1px;
+		border-radius: 2px;
+		background: rgb(38 55 63 / 72%);
+		transform: translate(-50%, -50%);
+	}
+	.msn__capbtn--min::before { top: 62%; }
+	.msn__capbtn--min::after { display: none; }
+	.msn__capbtn--restore::before { width: 7px; height: 6px; border: 1px solid rgb(38 55 63 / 68%); background: transparent; }
+	.msn__capbtn--restore::after { display: none; }
+	.msn__capbtn--close { background: radial-gradient(circle at 35% 24%, #ffd8d8, #ea8d8d 48%, #b23f3f); }
+	.msn__capbtn--close::before { transform: translate(-50%, -50%) rotate(45deg); }
+	.msn__capbtn--close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+	.msn__menubar { display: flex; flex: none; gap: 14px; padding: 4px 10px; background: #f5f8fc; border-bottom: 1px solid #c7d5e8; font-size: 11px; color: rgb(26 43 74 / 75%); }
+
+	.msn__body { display: flex; flex: 1; min-height: 0; }
+
+	.msn__sidebar { flex: none; width: 130px; padding: 10px; border-right: 1px solid #c7d5e8; background: #f9fbfd; }
+	.msn__contact { display: flex; align-items: center; gap: 8px; padding: 6px; border-radius: .5rem; background: rgb(120 170 230 / 18%); }
+	.msn__contact-avatar { display: block; width: 28px; height: 28px; border: 1px solid rgb(0 0 0 / 12%); border-radius: .4rem; object-fit: cover; background: #fff; }
+	.msn__contact-name { font-size: 11px; font-weight: 700; line-height: 1.4; }
+	.msn__contact-name small { color: #2f8f3d; font-size: 10px; font-weight: 600; }
+
+	.msn__conversation { display: flex; flex: 1; min-width: 0; flex-direction: column; }
+
+	.msn__signin { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: .6rem; padding: 1.5rem; text-align: center; }
+	.msn__signin p { margin: 0; font-size: 12.5px; }
+	.msn__signin input { width: 14rem; padding: .45rem .6rem; border: 1px solid #9fb7d6; border-radius: .4rem; font-size: 12px; font-family: inherit; }
+	.msn__signin button { padding: .45rem 1rem; border: 1px solid #1f4590; border-radius: .4rem; background: linear-gradient(180deg, #6ea3e6, #2f5fb0); color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+	.msn__signin button:hover { filter: brightness(1.06); }
+	.msn__signin button:disabled { opacity: .55; cursor: not-allowed; filter: none; }
+	.msn__privacy-note { max-width: 16rem; color: rgb(26 43 74 / 55%); font-size: 10px; line-height: 1.4; }
+	:global([data-theme="dark"]) .msn__privacy-note { color: rgb(232 250 255 / 55%); }
+
+	.msn__history { flex: 1; overflow-y: auto; padding: 10px 12px; background: #fff; font-size: 12px; line-height: 1.55; }
+	.msn__line { margin: 0 0 6px; }
+	.msn__line-time { color: rgb(26 43 74 / 45%); font-size: 10px; }
+	.msn__line--me { color: #1d4ed8; font-weight: 600; }
+	.msn__line--them { color: #b6314a; font-weight: 600; }
+
+	.msn__composer { flex: none; border-top: 1px solid #c7d5e8; background: #f5f8fc; }
+	.msn__emoticons { display: flex; align-items: center; gap: 4px; padding: 5px 8px; }
+	.msn__emoticons button { padding: 2px 5px; border: 1px solid transparent; border-radius: .35rem; background: transparent; font-size: 14px; cursor: pointer; }
+	.msn__emoticons button:hover { border-color: #c7d5e8; background: #fff; }
+	.msn__nudge { margin-left: auto; padding: 3px 8px !important; border-color: #f0b74a !important; background: linear-gradient(180deg, #ffe8b0, #f6c866) !important; font-size: 11px !important; font-weight: 700; color: #6b4a06; }
+	.msn__input-row { display: flex; gap: 6px; padding: 0 8px 8px; }
+	.msn__input-row textarea { flex: 1; resize: none; padding: .4rem .55rem; border: 1px solid #9fb7d6; border-radius: .4rem; font-family: inherit; font-size: 12px; }
+	.msn__input-row button { padding: 0 1rem; border: 1px solid #1f4590; border-radius: .4rem; background: linear-gradient(180deg, #6ea3e6, #2f5fb0); color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+	.msn__input-row button:hover { filter: brightness(1.06); }
+	.msn__input-row button:disabled { opacity: .6; cursor: default; }
+
+	.msn__statusbar { flex: none; padding: 4px 10px; border-top: 1px solid #c7d5e8; background: #eef4fb; color: rgb(26 43 74 / 65%); font-size: 10.5px; }
+
+	:global([data-theme="dark"]) .msn {
+		--msn-ink: #e8faff;
+		border-color: rgb(142 226 255 / 26%);
+		background: #16233b;
+	}
+	:global([data-theme="dark"]) .msn__menubar { background: #182b47; border-bottom-color: rgb(142 226 255 / 16%); color: rgb(232 250 255 / 70%); }
+	:global([data-theme="dark"]) .msn__sidebar { background: #182b47; border-right-color: rgb(142 226 255 / 16%); }
+	:global([data-theme="dark"]) .msn__history { background: #101c30; color: #e8faff; }
+	:global([data-theme="dark"]) .msn__composer { background: #182b47; border-top-color: rgb(142 226 255 / 16%); }
+	:global([data-theme="dark"]) .msn__input-row textarea { background: #101c30; border-color: rgb(142 226 255 / 25%); color: #e8faff; }
+	:global([data-theme="dark"]) .msn__statusbar { background: #16233b; border-top-color: rgb(142 226 255 / 16%); color: rgb(232 250 255 / 70%); }
+
+	@media (max-width: 600px) {
+		.msn { left: 1rem; width: calc(100vw - 2rem); }
+	}
+</style>

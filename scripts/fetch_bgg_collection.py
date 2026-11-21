@@ -12,6 +12,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BGG_USERNAME = os.environ.get("BGG_USERNAME")
+# Sinds 2025 vereist de BGG XML API een token van een geregistreerde app.
+BGG_API_TOKEN = os.environ.get("BGG_API_TOKEN")
 
 # Paden: script staat in httpdocs/scripts, output moet naar httpdocs/src/data
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -47,6 +49,8 @@ def requests_retry_session(
     adapter = HTTPAdapter(max_retries=retry)
     session.mount("http://", adapter)
     session.mount("https://", adapter)
+    if BGG_API_TOKEN:
+        session.headers.update({"Authorization": f"Bearer {BGG_API_TOKEN}"})
     return session
 
 

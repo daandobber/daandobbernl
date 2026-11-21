@@ -1,5 +1,6 @@
 ---
 import LastFmStatus from "@/components/LastFmStatus.svelte";
+import MessengerIcon from "@/components/MessengerIcon.astro";
 import ThemeToggle from "@/components/ThemeToggle.astro";
 import WindowMenu from "@/components/WindowMenu.astro";
 ---
@@ -14,6 +15,9 @@ import WindowMenu from "@/components/WindowMenu.astro";
 			</svg>
 			<LastFmStatus embedded client:load />
 		</div>
+		<button type="button" class="taskbar-tray-btn" data-app-toggle="msn" data-clippy-key="contact" aria-label="Contact" title="Contact">
+			<MessengerIcon />
+		</button>
 		<ThemeToggle />
 	</div>
 </footer>

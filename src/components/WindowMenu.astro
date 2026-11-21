@@ -12,9 +12,12 @@ import { menuLinks } from "@/site.config";
 		<div class="start-submenu">
 			<button type="button" class="start-submenu__trigger" aria-haspopup="true" aria-expanded="false"><span aria-hidden="true">◉</span><span>Collecties</span><span class="start-submenu__arrow" aria-hidden="true">›</span></button>
 			<div class="start-submenu__flyout">
-				<button type="button" data-window-path="/cd-collectie/" data-window-title="CD-collectie"><span aria-hidden="true">💿</span>CD-collectie</button>
+				<button type="button" data-window-path="/cd-collectie/" data-window-title="CD-collectie" data-clippy-key="cd-collectie"><span aria-hidden="true">💿</span>CD-collectie</button>
+				<button type="button" data-window-path="/bordspellen/" data-window-title="Bordspellen"><span aria-hidden="true">🎲</span>Bordspellen</button>
 			</div>
 		</div>
+		<button type="button" data-app-toggle="videospeler" data-clippy-key="videospeler"><span aria-hidden="true">▶</span>Videospeler</button>
+		<button type="button" data-app-toggle="explorer" data-clippy-key="verkenner"><span aria-hidden="true">▣</span>Verkenner</button>
 	</div>
 </window-menu>
 
@@ -57,6 +60,19 @@ import { menuLinks } from "@/site.config";
 			for (const button of this.querySelectorAll<HTMLButtonElement>("[data-window-path]")) button.addEventListener("click", () => {
 				setOpen(false);
 				this.openWindow(button.dataset.windowPath ?? "/", button.dataset.windowTitle ?? "Pagina");
+				if (button.dataset.clippyKey) {
+					document.dispatchEvent(new CustomEvent("aqua-app-opened", { detail: { key: button.dataset.clippyKey } }));
+				}
+			});
+			for (const button of this.querySelectorAll<HTMLButtonElement>("[data-app-toggle]")) button.addEventListener("click", () => {
+				setOpen(false);
+				const app = document.querySelector<HTMLElement>(`[data-app="${button.dataset.appToggle}"]`);
+				if (app) {
+					app.hidden = !app.hidden;
+					if (!app.hidden && button.dataset.clippyKey) {
+						document.dispatchEvent(new CustomEvent("aqua-app-opened", { detail: { key: button.dataset.clippyKey } }));
+					}
+				}
 			});
 			document.addEventListener("aqua-open-window", ((event: CustomEvent<{ path?: string; title?: string }>) => {
 				this.openWindow(event.detail.path ?? "/", event.detail.title ?? "Pagina");
@@ -83,11 +99,21 @@ import { menuLinks } from "@/site.config";
 			windowEl.style.left = `${18 + this.#count * 28}px`;
 			windowEl.style.top = `${18 + this.#count * 24}px`;
 			const isDocuments = path === "aqua://documents";
-			windowEl.innerHTML = `<div class="spawned-window__bar"><div class="window-controls"><button class="window-control window-control--minimize" type="button" aria-label="Venster minimaliseren" data-window-minimize></button><button class="window-control window-control--maximize" type="button" aria-label="Venster maximaliseren" data-window-maximize></button><button class="window-control window-control--close" type="button" aria-label="Venster sluiten" data-window-close></button></div><strong></strong></div>${isDocuments ? `<div class="folder-window"><button class="folder-file" type="button"><span aria-hidden="true">▤</span><strong>CV</strong><small>Document</small></button></div>` : `<iframe title="${title}"></iframe>`}`;
-			windowEl.querySelector("strong")!.textContent = title;
+			const isBrowser = path === "/posts/" || path.startsWith("/posts/");
+			const svgIcon = (path: string, viewBox = "0 0 24 24") => `<svg viewBox="${viewBox}" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${path}</svg>`;
+			const iconBack = svgIcon(`<polyline points="15 5 8 12 15 19"></polyline>`);
+			const iconForward = svgIcon(`<polyline points="9 5 16 12 9 19"></polyline>`);
+			const iconReload = svgIcon(`<polyline points="21 4 21 9 16 9"></polyline><polyline points="3 20 3 15 8 15"></polyline><path d="M4.2 9a8 8 0 0 1 13.3-3.2L21 9M3 15l3.5 3.2A8 8 0 0 0 19.8 15"></path>`);
+			const iconHome = svgIcon(`<path d="M3.5 11 12 4l8.5 7"></path><path d="M5.5 9.5V19a1 1 0 0 0 1 1h3v-6h5v6h3a1 1 0 0 0 1-1V9.5"></path>`);
+			const iconStar = svgIcon(`<polygon points="12 2.5 15 9 22 9.8 17 14.5 18.3 21.5 12 18 5.7 21.5 7 14.5 2 9.8 9 9 12 2.5"></polygon>`);
+			const browserToolbar = `<div class="browser-toolbar"><button class="browser-nav-btn" type="button" data-browser-back aria-label="Terug">${iconBack}</button><button class="browser-nav-btn" type="button" data-browser-forward aria-label="Vooruit">${iconForward}</button><button class="browser-nav-btn" type="button" data-browser-reload aria-label="Vernieuwen">${iconReload}</button><button class="browser-nav-btn" type="button" data-browser-home aria-label="Startpagina">${iconHome}</button><div class="browser-address"><span class="browser-address__lock" aria-hidden="true">🔒</span><span class="browser-address__text"></span></div><button class="browser-nav-btn browser-nav-btn--star" type="button" data-browser-star aria-label="Toevoegen aan favorieten">${iconStar}</button></div>`;
+			windowEl.innerHTML = `<div class="spawned-window__bar"><div class="window-controls"><button class="window-control window-control--minimize" type="button" aria-label="Venster minimaliseren" data-window-minimize></button><button class="window-control window-control--maximize" type="button" aria-label="Venster maximaliseren" data-window-maximize></button><button class="window-control window-control--close" type="button" aria-label="Venster sluiten" data-window-close></button></div><strong></strong></div>${isBrowser ? browserToolbar : ""}${isDocuments ? `<div class="folder-window"><button class="folder-file" type="button"><span aria-hidden="true">▤</span><strong>CV</strong><small>Document</small></button></div>` : `<iframe title="${title}"></iframe>`}`;
+			if (isBrowser) windowEl.classList.add("spawned-window--browser");
+			windowEl.querySelector("strong")!.textContent = isBrowser ? "Internet" : title;
 			const frame = windowEl.querySelector<HTMLIFrameElement>("iframe");
 			if (frame) frame.src = path;
 			windowEl.querySelector<HTMLButtonElement>(".folder-file")?.addEventListener("dblclick", () => this.openWindow("/cv/", "CV"));
+			if (isBrowser && frame) this.setupBrowserChrome(windowEl, frame, path);
 			this.setupControls(windowEl, true);
 			windowEl.addEventListener("pointerdown", () => this.raise(windowEl));
 			(document.querySelector(".window-workspace") ?? document.body).append(windowEl);
@@ -146,6 +172,45 @@ import { menuLinks } from "@/site.config";
 				windowEl.classList.remove("is-minimized");
 				this.raise(windowEl);
 				(event.currentTarget as HTMLButtonElement).setAttribute("aria-label", windowEl.classList.contains("is-maximized") ? "Venster herstellen" : "Venster maximaliseren");
+			});
+		}
+		setupBrowserChrome(windowEl: HTMLElement, frame: HTMLIFrameElement, homePath: string) {
+			const addressText = windowEl.querySelector<HTMLElement>(".browser-address__text");
+			const starBtn = windowEl.querySelector<HTMLButtonElement>("[data-browser-star]");
+			const setAddress = (path: string) => { if (addressText) addressText.textContent = `${location.hostname}${path}`; };
+			setAddress(homePath);
+			const attachUnloadHook = () => {
+				try {
+					frame.contentWindow?.addEventListener("beforeunload", () => windowEl.classList.add("is-loading"), { once: true });
+				} catch { /* cross-origin, ignore */ }
+			};
+			frame.addEventListener("load", () => {
+				windowEl.classList.remove("is-loading");
+				try {
+					const loc = frame.contentWindow?.location;
+					if (loc) setAddress(`${loc.pathname}${loc.hash}`);
+				} catch { /* cross-origin, ignore */ }
+				attachUnloadHook();
+			});
+			windowEl.querySelector<HTMLButtonElement>("[data-browser-back]")?.addEventListener("click", () => {
+				try { frame.contentWindow?.history.back(); } catch { /* cross-origin, ignore */ }
+			});
+			windowEl.querySelector<HTMLButtonElement>("[data-browser-forward]")?.addEventListener("click", () => {
+				try { frame.contentWindow?.history.forward(); } catch { /* cross-origin, ignore */ }
+			});
+			windowEl.querySelector<HTMLButtonElement>("[data-browser-reload]")?.addEventListener("click", () => {
+				windowEl.classList.add("is-loading");
+				try { frame.contentWindow?.location.reload(); } catch { frame.src = frame.src; }
+			});
+			windowEl.querySelector<HTMLButtonElement>("[data-browser-home]")?.addEventListener("click", () => {
+				if (frame.src.endsWith(homePath)) return;
+				windowEl.classList.add("is-loading");
+				frame.src = homePath;
+			});
+			starBtn?.addEventListener("click", () => {
+				const isFavorite = starBtn.classList.toggle("is-favorite");
+				starBtn.setAttribute("aria-label", isFavorite ? "Verwijderen uit favorieten" : "Toevoegen aan favorieten");
+				if (isFavorite) document.dispatchEvent(new CustomEvent("aqua-app-opened", { detail: { key: "blog-favoriet" } }));
 			});
 		}
 		makeDraggable(windowEl: HTMLElement, handle: HTMLElement) {
