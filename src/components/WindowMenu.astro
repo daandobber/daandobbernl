@@ -82,6 +82,15 @@ import { menuLinks } from "@/site.config";
 			if (main && bar) {
 				main.hidden = true;
 			}
+			// someone who comes straight to a page (like /cd-collectie/) gets that page in a window, opened large
+			const here = location.pathname;
+			if (window.self === window.top && here !== "/" && here !== "/index.html") {
+				const title = document.title.split(/\s[|·–-]\s/)[0].trim() || "Pagina";
+				this.openWindow(here, title);
+				const opened = document.querySelector<HTMLElement>(`.spawned-window[data-path="${CSS.escape(here)}"]`);
+				opened?.classList.add("is-maximized");
+				opened?.querySelector<HTMLButtonElement>("[data-window-maximize]")?.setAttribute("aria-label", "Venster herstellen");
+			}
 		}
 		openWindow(path: string, title: string) {
 			const existing = document.querySelector<HTMLElement>(`.spawned-window[data-path="${CSS.escape(path)}"]`);
