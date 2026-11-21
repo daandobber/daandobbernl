@@ -81,7 +81,12 @@ const meta: SiteMeta = {
 	const library = document.querySelector<HTMLElement>("[data-cd-library]");
 	if (library) {
 		const cases = Array.from(library.querySelectorAll<HTMLElement>(".cd-case"));
-		const shelves = Array.from(library.querySelectorAll<HTMLElement>(".cd-shelf"));
+		// an empty shelf to copy when the screen needs more shelves
+		const shelfTemplate = library.querySelector<HTMLElement>(".cd-shelf")!.cloneNode(true) as HTMLElement;
+		shelfTemplate.querySelector(".cd-shelf__items")!.replaceChildren();
+		const pool = document.createElement("div"); // cds that don't match the search wait here
+		pool.hidden = true;
+		library.after(pool);
 
 		const shuffle = (list: HTMLElement[]) => {
 			for (let index = list.length - 1; index > 0; index -= 1) {
@@ -92,10 +97,23 @@ const meta: SiteMeta = {
 			}
 		};
 
-		// fill the shelves (6 per shelf) with the cds that match the search, in the current order;
-		// shelves that end up empty are hidden, so search results stand together
+		// How many cds fit on a shelf depends on the screen: a cd is never wider than MAX_CASE pixels,
+		// so a wide screen gets longer shelves (not bigger cds) and a phone gets 2 or 3 per shelf.
+		const MAX_CASE = 190;
+		const perShelf = () => {
+			const row = library.querySelector<HTMLElement>(".cd-shelf__items");
+			if (!row) return 6;
+			const gap = parseFloat(getComputedStyle(row).columnGap) || 12;
+			return Math.max(2, Math.ceil((row.clientWidth + gap) / (MAX_CASE + gap)));
+		};
+
+		// fill the shelves with the cds that match the search, in the current order, so search results stand together
 		const searchInput = document.querySelector<HTMLInputElement>("[data-cd-search]");
+		let shownPerShelf = 0;
 		const render = () => {
+			const per = perShelf();
+			shownPerShelf = per;
+			library.style.setProperty("--per-shelf", String(per));
 			const needle = (searchInput?.value ?? "").trim().toLowerCase();
 			const visible: HTMLElement[] = [];
 			const hidden: HTMLElement[] = [];
@@ -105,15 +123,20 @@ const meta: SiteMeta = {
 				item.hidden = !match;
 				(match ? visible : hidden).push(item);
 			}
-			const rows = Array.from(library.querySelectorAll<HTMLElement>(".cd-shelf__items"));
-			rows.forEach((row, rowIndex) => {
-				const onShelf = visible.slice(rowIndex * 6, rowIndex * 6 + 6);
-				row.append(...onShelf);
-				shelves[rowIndex]!.hidden = onShelf.length === 0;
+			pool.append(...hidden);
+			const needed = Math.max(1, Math.ceil(visible.length / per));
+			let shelves = Array.from(library.querySelectorAll<HTMLElement>(".cd-shelf"));
+			while (shelves.length < needed) {
+				library.append(shelfTemplate.cloneNode(true));
+				shelves = Array.from(library.querySelectorAll<HTMLElement>(".cd-shelf"));
+			}
+			shelves.slice(needed).forEach((shelf) => shelf.remove());
+			shelves.slice(0, needed).forEach((shelf, index) => {
+				shelf.querySelector(".cd-shelf__items")!.replaceChildren(...visible.slice(index * per, index * per + per));
 			});
-			rows.at(-1)?.append(...hidden);
 		};
 
+		new ResizeObserver(() => { if (perShelf() !== shownPerShelf) render(); }).observe(library);
 		searchInput?.addEventListener("input", render);
 		render(); // the browser may have kept a search from before
 
@@ -187,7 +210,7 @@ const meta: SiteMeta = {
 	.cd-shelf { position: relative; min-width: 0; padding: 0 1.7rem; border-bottom: 13px solid #24252a; isolation: isolate; }
 	.cd-shelf::before { display: none; }
 	.cd-shelf::after { content: ""; position: absolute; z-index: -1; right: 2.15rem; bottom: -13px; left: 2.15rem; height: 10px; background: transparent; box-shadow: 0 0 17px 5px rgb(0 0 0 / 70%); transform: perspective(150px) rotateX(-25deg); }
-	.cd-shelf__items { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: clamp(.35rem, 1.25vw, .9rem); align-items: end; border-bottom: 23px solid #303138; }
+	.cd-shelf__items { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(var(--per-shelf, 6), minmax(0, 1fr)); gap: clamp(.35rem, 1.25vw, .9rem); align-items: end; border-bottom: 23px solid #303138; }
 	.cd-shelf__items::before,
 	.cd-shelf__items::after { content: ""; position: absolute; bottom: -23px; width: 0; height: 0; border-style: solid; }
 	.cd-shelf__items::before { left: -1.7rem; border-width: 0 0 23px 1.7rem; border-color: transparent transparent #303138; }
